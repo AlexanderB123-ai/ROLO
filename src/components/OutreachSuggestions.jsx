@@ -2,8 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { ContactsContext } from '../context/ContactsContext';
 import { generateOutreachSuggestions } from '../utils/claude';
 import { formatRolodexName } from '../utils/nameFormatter';
+import { ArrowLeft, Copy, Check, MessageCircle, Phone, Coffee, Loader2, CheckCircle } from 'lucide-react';
 
-// Helper function to calculate days since last interaction
 const calculateDrift = (lastInteractionDate) => {
   if (!lastInteractionDate) return 999;
   const now = new Date();
@@ -11,7 +11,6 @@ const calculateDrift = (lastInteractionDate) => {
   return Math.floor((now - last) / (1000 * 60 * 60 * 24));
 };
 
-// Fallback suggestions if API fails
 const getFallbackSuggestions = (contact, drift) => [
   {
     type: 'text',
@@ -33,6 +32,12 @@ const getFallbackSuggestions = (contact, drift) => [
   }
 ];
 
+const typeConfig = {
+  text: { icon: MessageCircle, label: 'Text', color: 'bg-blue-50 text-blue-600 border-blue-100' },
+  call: { icon: Phone, label: 'Call', color: 'bg-green-50 text-green-600 border-green-100' },
+  hangout: { icon: Coffee, label: 'Hangout', color: 'bg-purple-50 text-purple-600 border-purple-100' },
+};
+
 export default function OutreachSuggestions() {
   const { selectedContact, setCurrentView, setSelectedContact, updateContact } = useContext(ContactsContext);
   const [suggestions, setSuggestions] = useState([]);
@@ -41,15 +46,12 @@ export default function OutreachSuggestions() {
   const [copiedIndex, setCopiedIndex] = useState(null);
 
   useEffect(() => {
-    if (selectedContact) {
-      loadSuggestions();
-    }
+    if (selectedContact) loadSuggestions();
   }, [selectedContact]);
 
   const loadSuggestions = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
       const drift = calculateDrift(selectedContact.last_interaction?.approximate_date);
       const generated = await generateOutreachSuggestions(selectedContact, drift);
@@ -57,7 +59,6 @@ export default function OutreachSuggestions() {
     } catch (err) {
       console.error('Error generating suggestions:', err);
       setError(err.message);
-      // Use fallback suggestions
       const drift = calculateDrift(selectedContact.last_interaction?.approximate_date);
       setSuggestions(getFallbackSuggestions(selectedContact, drift));
     } finally {
@@ -73,15 +74,12 @@ export default function OutreachSuggestions() {
   };
 
   const handleReachedOut = () => {
-    // Update the contact's last interaction date
     updateContact(selectedContact.id, {
       last_interaction: {
         approximate_date: new Date().toISOString(),
         description: 'Reached out via Rolo suggestion'
       }
     });
-
-    // Return to dashboard
     setSelectedContact(null);
     setCurrentView('dashboard');
   };
@@ -92,150 +90,111 @@ export default function OutreachSuggestions() {
 
   if (!selectedContact) return null;
 
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'text':
-        return '💬';
-      case 'call':
-        return '📞';
-      case 'hangout':
-        return '☕';
-      default:
-        return '💭';
-    }
-  };
-
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'text':
-        return 'bg-blue-100 text-blue-800';
-      case 'call':
-        return 'bg-green-100 text-green-800';
-      case 'hangout':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
-    <div className="min-h-screen py-8 px-4" style={{background: 'linear-gradient(to bottom right, #D6CFC7, #F5F1ED)'}}>
-      <div className="max-w-3xl mx-auto">
-        {/* Back Button */}
+    <div className="min-h-screen bg-warm-50 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Back */}
         <button
           onClick={handleBack}
-          className="mb-6 flex items-center text-gray-700 hover:text-gray-900 font-medium transition-colors"
+          className="mb-6 inline-flex items-center gap-2 text-warm-500 hover:text-warm-700 font-medium transition-colors text-sm"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Profile
+          <ArrowLeft size={16} />
+          Back
         </button>
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Reach Out to {formatRolodexName(selectedContact.name)}
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-3xl font-bold text-warm-900 mb-2">
+            Reach out to {formatRolodexName(selectedContact.name)}
           </h1>
-          <p className="text-gray-600">
-            {isLoading
-              ? 'AI is crafting personalized suggestions...'
-              : 'Here are some ways you could reconnect'}
+          <p className="text-warm-500 text-sm">
+            {isLoading ? 'AI is crafting personalized suggestions...' : 'Here are some ways to reconnect'}
           </p>
         </div>
 
-        {/* Loading State */}
+        {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4" style={{borderColor: '#DD571C'}}></div>
+          <div className="flex flex-col items-center justify-center py-16 animate-fade-in">
+            <Loader2 size={40} className="text-brand animate-spin mb-4" />
+            <p className="text-warm-500 text-sm">Generating ideas...</p>
           </div>
         )}
 
-        {/* Error Message */}
+        {/* Error */}
         {error && !isLoading && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded-lg mb-6">
-            <p className="font-semibold">Using fallback suggestions</p>
-            <p className="text-sm">AI suggestions unavailable. These are generic templates you can customize.</p>
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6 animate-fade-in">
+            <p className="font-medium text-amber-800 text-sm">Using template suggestions</p>
+            <p className="text-xs text-amber-600 mt-1">AI unavailable — customize these templates for your message.</p>
           </div>
         )}
 
         {/* Suggestions */}
         {!isLoading && suggestions.length > 0 && (
-          <div className="space-y-6 mb-8">
-            {suggestions.map((suggestion, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border border-gray-100" style={{boxShadow: '0 4px 24px rgba(221, 87, 28, 0.08)'}}>
-                {/* Type Badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <span className="text-3xl mr-3">{getTypeIcon(suggestion.type)}</span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getTypeColor(suggestion.type)}`}>
-                      {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)}
-                    </span>
+          <div className="space-y-4 mb-8 animate-slide-up">
+            {suggestions.map((suggestion, index) => {
+              const config = typeConfig[suggestion.type] || typeConfig.text;
+              const Icon = config.icon;
+
+              return (
+                <div key={index} className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 hover:shadow-md transition-all">
+                  {/* Type badge */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.color}`}>
+                      <Icon size={13} />
+                      {config.label}
+                    </div>
                   </div>
-                </div>
 
-                {/* Suggestion */}
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  {suggestion.suggestion}
-                </h3>
+                  {/* Suggestion */}
+                  <h3 className="font-semibold text-warm-800 mb-3">{suggestion.suggestion}</h3>
 
-                {/* Draft Message */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-semibold text-gray-600 mb-2">Draft Message:</p>
-                  <p className="text-gray-800 leading-relaxed">{suggestion.draft_message}</p>
-                </div>
+                  {/* Draft message */}
+                  <div className="bg-warm-50 rounded-xl p-4 mb-3">
+                    <p className="text-xs font-medium text-warm-400 uppercase tracking-wider mb-2">Draft</p>
+                    <p className="text-warm-700 text-sm leading-relaxed">{suggestion.draft_message}</p>
+                  </div>
 
-                {/* Reasoning */}
-                {suggestion.reasoning && (
-                  <p className="text-sm text-gray-600 mb-4 italic">
-                    💡 {suggestion.reasoning}
-                  </p>
-                )}
-
-                {/* Copy Button */}
-                <button
-                  onClick={() => handleCopyMessage(suggestion.draft_message, index)}
-                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-white ${
-                    copiedIndex === index ? 'bg-green-500' : ''
-                  }`}
-                  style={copiedIndex !== index ? {background: 'linear-gradient(135deg, #DD571C, #C44915)'} : {}}
-                >
-                  {copiedIndex === index ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Copied!
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center">
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
-                      Copy Message
-                    </span>
+                  {/* Reasoning */}
+                  {suggestion.reasoning && (
+                    <p className="text-xs text-warm-400 mb-4 italic">{suggestion.reasoning}</p>
                   )}
-                </button>
-              </div>
-            ))}
+
+                  {/* Copy button */}
+                  <button
+                    onClick={() => handleCopyMessage(suggestion.draft_message, index)}
+                    className={`w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+                      copiedIndex === index
+                        ? 'bg-green-50 text-green-600 border border-green-200'
+                        : 'gradient-brand text-white shadow-sm shadow-brand/20 hover:shadow-md hover:-translate-y-0.5'
+                    }`}
+                  >
+                    {copiedIndex === index ? (
+                      <><Check size={15} /> Copied!</>
+                    ) : (
+                      <><Copy size={15} /> Copy Message</>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Actions */}
         {!isLoading && (
-          <div className="flex flex-col gap-4">
+          <div className="space-y-3 animate-slide-up delay-200">
             <button
               onClick={handleReachedOut}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105"
-              style={{boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)'}}
+              className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-green-500 text-white font-semibold shadow-md shadow-green-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
             >
-              ✓ I Reached Out
+              <CheckCircle size={18} />
+              I Reached Out
             </button>
             <button
               onClick={handleBack}
-              className="w-full py-3 px-6 text-gray-600 hover:text-gray-800 font-medium transition-all hover:bg-gray-100 rounded-xl"
+              className="w-full py-3 px-6 rounded-xl font-medium text-warm-500 hover:text-warm-700 hover:bg-warm-100 transition-colors text-sm"
             >
-              ← Back to Profile
+              Back to Profile
             </button>
           </div>
         )}

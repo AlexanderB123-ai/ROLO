@@ -16,9 +16,9 @@ function AppContent() {
   const showNavigation = ['home', 'dashboard', 'calendar', 'suggestions'].includes(currentView);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-warm-50 font-sans">
       {showNavigation && <Navigation />}
-      <div className={showNavigation ? 'pt-16' : ''}>
+      <div>
         {currentView === 'home' && <HomePage />}
         {currentView === 'dashboard' && <Dashboard />}
         {currentView === 'calendar' && <InteractionCalendar />}

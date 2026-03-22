@@ -26,19 +26,13 @@ export default function Navigation() {
   }, [activeIndex]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b shadow-sm" style={{background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderColor: '#D6CFC7'}}>
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-center h-16 relative">
-          {/* Container for tabs */}
-          <div className="relative flex items-center gap-1 bg-gray-100/50 rounded-2xl p-1">
-            {/* Sliding fluorescent indicator (tubelight effect) */}
+    <nav className="fixed top-0 left-0 right-0 z-50">
+      <div className="mx-4 mt-4">
+        <div className="max-w-2xl mx-auto glass-strong rounded-2xl shadow-lg shadow-warm-900/5 px-2 py-2">
+          <div className="relative flex items-center">
+            {/* Sliding indicator */}
             <motion.div
-              className="absolute h-[calc(100%-8px)] rounded-xl"
-              style={{
-                background: 'linear-gradient(135deg, #DD571C, #C44915)',
-                boxShadow: '0 0 20px rgba(221, 87, 28, 0.6), 0 0 40px rgba(221, 87, 28, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.3)',
-                top: '4px'
-              }}
+              className="absolute h-full rounded-xl gradient-brand shadow-md shadow-brand/25"
               initial={false}
               animate={{
                 left: indicatorStyle.left,
@@ -61,15 +55,13 @@ export default function Navigation() {
                   key={tab.id}
                   ref={(el) => (tabRefs.current[index] = el)}
                   onClick={() => setCurrentView(tab.id)}
-                  className="relative px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 min-w-[140px] justify-center"
+                  className="relative flex-1 px-4 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center gap-2 z-10"
                   style={{
-                    color: isActive ? '#FFFFFF' : '#666',
-                    textShadow: isActive ? '0 0 8px rgba(255, 255, 255, 0.8)' : 'none',
-                    zIndex: 10
+                    color: isActive ? '#FFFFFF' : '#9C8B7A',
                   }}
                 >
-                  <Icon size={18} />
-                  <span className="text-sm">{tab.label}</span>
+                  <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="text-sm hidden sm:inline">{tab.label}</span>
                 </button>
               );
             })}

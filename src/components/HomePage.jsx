@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 import { ContactsContext } from '../context/ContactsContext';
+import { Mic, Brain, MessageCircle, ArrowRight, Sparkles, Heart, Clock, Shield } from 'lucide-react';
 
 export default function HomePage() {
   const { setCurrentView, contacts } = useContext(ContactsContext);
 
-  // Calculate stats
   const driftingCount = contacts.filter(c => {
     if (!c.last_interaction?.approximate_date) return true;
     const now = new Date();
@@ -14,133 +14,219 @@ export default function HomePage() {
   }).length;
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{background: 'linear-gradient(to bottom right, #D6CFC7, #F5F1ED)'}}>
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" style={{background: '#DD571C'}}></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob animation-delay-2000" style={{background: '#DD571C'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000" style={{background: '#C4B5A8'}}></div>
+    <div className="min-h-screen bg-warm-50 relative overflow-hidden">
+      {/* Ambient background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-48 -right-48 w-[500px] h-[500px] rounded-full bg-brand/8 blur-3xl animate-blob" />
+        <div className="absolute -bottom-48 -left-48 w-[500px] h-[500px] rounded-full bg-brand/5 blur-3xl animate-blob delay-2000" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-warm-300/20 blur-3xl animate-blob delay-4000" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
-        {/* Hero Section */}
-        <div className="text-center max-w-4xl mx-auto mb-12 animate-fade-in">
-          <h1 className="text-7xl md:text-8xl font-bold mb-6" style={{color: '#DD571C'}}>
-            Rolo
-          </h1>
-          <p className="text-2xl md:text-3xl text-gray-700 mb-4 font-light">
-            AI that makes you more human
-          </p>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Social media uses AI to keep you scrolling past your friends.
-            <span className="font-semibold" style={{color: '#DD571C'}}> Rolo uses AI to make you call them.</span>
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        {contacts.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl animate-slide-up animation-delay-200">
-            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/50 text-center transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl font-bold mb-2" style={{color: '#DD571C'}}>
-                {contacts.length}
-              </div>
-              <div className="text-sm text-gray-600 font-medium">people in your world</div>
-            </div>
-            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/50 text-center transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl font-bold mb-2" style={{color: '#DD571C'}}>
-                {driftingCount}
-              </div>
-              <div className="text-sm text-gray-600 font-medium">need your attention</div>
-            </div>
-            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/50 text-center transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-              <div className="text-5xl font-bold mb-2" style={{color: '#DD571C'}}>
-                {contacts.filter(c => c.importance >= 4).length}
-              </div>
-              <div className="text-sm text-gray-600 font-medium">in your inner circle</div>
-            </div>
+      {/* ===== HERO SECTION ===== */}
+      <section className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] px-6 pt-20">
+        <div className="text-center max-w-3xl mx-auto">
+          {/* Badge */}
+          <div className="animate-fade-in inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-light text-brand text-sm font-semibold mb-8 border border-brand/10">
+            <Sparkles size={14} />
+            AI-Powered Relationship Manager
           </div>
-        )}
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 animate-slide-up animation-delay-400">
-          <button
-            onClick={() => setCurrentView('dashboard')}
-            className="px-10 py-5 rounded-2xl text-white font-bold text-lg shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl group"
-            style={{background: 'linear-gradient(135deg, #DD571C, #C44915)', boxShadow: '0 8px 32px rgba(221, 87, 28, 0.3)'}}
-          >
-            <span className="group-hover:inline-block group-hover:animate-pulse">👥</span> View Your Contacts
-          </button>
-          <button
-            onClick={() => setCurrentView('suggestions')}
-            className="px-10 py-5 bg-white/90 backdrop-blur-xl rounded-2xl font-bold text-lg shadow-xl transition-all duration-300 hover:scale-105 border-2 hover:bg-white group"
-            style={{color: '#DD571C', borderColor: '#DD571C'}}
-          >
-            <span className="group-hover:inline-block group-hover:animate-pulse">✨</span> Get AI Suggestions
-          </button>
-        </div>
+          {/* Main headline */}
+          <h1 className="animate-fade-in delay-100 text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-warm-900 mb-6 text-balance leading-[0.95]">
+            Never lose touch
+            <span className="block gradient-text">with anyone.</span>
+          </h1>
 
-        {/* Add First Contact CTA */}
-        {contacts.length === 0 && (
-          <div className="mt-8 text-center animate-slide-up animation-delay-600">
-            <p className="text-gray-600 mb-4">Start by adding people you care about</p>
+          {/* Sub-headline */}
+          <p className="animate-fade-in delay-200 text-xl md:text-2xl text-warm-500 max-w-2xl mx-auto mb-4 leading-relaxed font-light">
+            Social media uses AI to keep you scrolling past your friends.
+          </p>
+          <p className="animate-fade-in delay-300 text-xl md:text-2xl text-warm-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+            Rolo uses AI to make you <span className="text-brand font-bold">call them</span>.
+          </p>
+
+          {/* CTA buttons */}
+          <div className="animate-slide-up delay-400 flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => setCurrentView('dashboard')}
+              className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-white font-semibold text-lg gradient-brand shadow-lg shadow-brand/25 transition-all duration-300 hover:shadow-xl hover:shadow-brand/30 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              Get Started
+              <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+            </button>
             <button
               onClick={() => setCurrentView('voice')}
-              className="px-8 py-4 bg-white/90 backdrop-blur-xl rounded-2xl font-semibold shadow-lg transition-all duration-300 hover:scale-105 flex items-center gap-3 mx-auto"
-              style={{color: '#DD571C'}}
+              className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg text-warm-700 bg-white border border-warm-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-warm-300 hover:-translate-y-0.5"
             >
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
-                <path d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z" />
-              </svg>
-              Add Your First Contact
+              <Mic size={20} className="text-brand" />
+              Add by Voice
             </button>
+          </div>
+        </div>
+
+        {/* Stats row */}
+        {contacts.length > 0 && (
+          <div className="animate-slide-up delay-600 mt-16 grid grid-cols-3 gap-4 md:gap-8 w-full max-w-2xl">
+            {[
+              { value: contacts.length, label: 'Contacts' },
+              { value: driftingCount, label: 'Need Attention' },
+              { value: contacts.filter(c => c.importance >= 4).length, label: 'Inner Circle' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center p-4 rounded-2xl glass transition-all hover:shadow-md">
+                <div className="text-3xl md:text-4xl font-bold text-brand mb-1">{stat.value}</div>
+                <div className="text-sm text-warm-500 font-medium">{stat.label}</div>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Feature Highlights */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full animate-fade-in animation-delay-800">
-          <div className="text-center">
-            <div className="text-4xl mb-3">🎤</div>
-            <h3 className="font-bold text-lg mb-2" style={{color: '#DD571C'}}>Voice-First</h3>
-            <p className="text-gray-600 text-sm">Just talk naturally about your friends. AI does the rest.</p>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl mb-3">🎯</div>
-            <h3 className="font-bold text-lg mb-2" style={{color: '#DD571C'}}>Smart Reminders</h3>
-            <p className="text-gray-600 text-sm">Never let friendships drift. AI tracks who you haven't talked to.</p>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl mb-3">💬</div>
-            <h3 className="font-bold text-lg mb-2" style={{color: '#DD571C'}}>Personal Messages</h3>
-            <p className="text-gray-600 text-sm">AI writes thoughtful, personalized messages for everyone.</p>
+        {/* Scroll indicator */}
+        <div className="animate-fade-in delay-1000 mt-16 flex flex-col items-center gap-2 text-warm-400">
+          <span className="text-xs font-medium uppercase tracking-widest">Learn more</span>
+          <div className="w-5 h-8 rounded-full border-2 border-warm-300 flex justify-center pt-1.5">
+            <div className="w-1 h-2 rounded-full bg-warm-400 animate-pulse-soft" />
           </div>
         </div>
-      </div>
+      </section>
 
-      <style>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
-        .animate-slide-up { animation: slideUp 0.6s ease-out; }
-        .animation-delay-200 { animation-delay: 0.2s; animation-fill-mode: backwards; }
-        .animation-delay-400 { animation-delay: 0.4s; animation-fill-mode: backwards; }
-        .animation-delay-600 { animation-delay: 0.6s; animation-fill-mode: backwards; }
-        .animation-delay-800 { animation-delay: 0.8s; animation-fill-mode: backwards; }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      {/* ===== WHAT IS ROLO ===== */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-warm-900 mb-6 text-balance">
+            Your relationships deserve
+            <span className="gradient-text"> better than a contact list.</span>
+          </h2>
+          <p className="text-lg text-warm-500 max-w-2xl mx-auto leading-relaxed">
+            Rolo is a personal CRM that remembers everything about the people you care about —
+            how you met, what they're going through, and when it's time to reach out.
+            Powered by AI, designed for humans.
+          </p>
+        </div>
+      </section>
+
+      {/* ===== FEATURES ===== */}
+      <section className="relative z-10 py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: <Mic size={24} />,
+                title: 'Voice-First Input',
+                description: 'Just talk naturally about your friends. AI extracts names, details, and context automatically.',
+              },
+              {
+                icon: <Clock size={24} />,
+                title: 'Drift Detection',
+                description: 'Rolo tracks when relationships are fading and gently nudges you before it\'s too late.',
+              },
+              {
+                icon: <Brain size={24} />,
+                title: 'AI Suggestions',
+                description: 'Get personalized message drafts and reach-out ideas based on each person\'s context.',
+              },
+              {
+                icon: <Heart size={24} />,
+                title: 'Inner Circle View',
+                description: 'Visual concentric rings show who matters most, with drift indicators at a glance.',
+              },
+              {
+                icon: <MessageCircle size={24} />,
+                title: 'Smart Outreach',
+                description: 'AI crafts thoughtful texts, call scripts, and hangout ideas tailored to each relationship.',
+              },
+              {
+                icon: <Shield size={24} />,
+                title: 'Private & Local',
+                description: 'Your relationship data stays on your device. No cloud sync, no data mining, no ads.',
+              },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="group p-8 rounded-3xl bg-white border border-warm-200/60 shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-1 hover:border-brand/20"
+              >
+                <div className="w-12 h-12 rounded-2xl gradient-brand flex items-center justify-center text-white mb-5 shadow-md shadow-brand/20 transition-transform group-hover:scale-110">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg font-bold text-warm-800 mb-2">{feature.title}</h3>
+                <p className="text-warm-500 leading-relaxed text-[15px]">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== HOW IT WORKS ===== */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-warm-900 mb-16 text-center">
+            How it <span className="gradient-text">works</span>
+          </h2>
+
+          <div className="space-y-12">
+            {[
+              {
+                step: '01',
+                title: 'Tell Rolo about your people',
+                description: 'Record a quick voice memo or type details about someone. Mention how you met, what they\'re into, what\'s going on in their life.',
+              },
+              {
+                step: '02',
+                title: 'AI organizes everything',
+                description: 'Rolo\'s AI extracts names, interests, life updates, and open conversation threads — then ranks importance and tracks drift.',
+              },
+              {
+                step: '03',
+                title: 'Get nudged to reach out',
+                description: 'When a relationship starts drifting, Rolo suggests personalized ways to reconnect — a text, a call idea, or a hangout plan.',
+              },
+            ].map((item, i) => (
+              <div key={i} className="flex gap-6 md:gap-8 items-start group">
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl gradient-brand flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand/20 transition-transform group-hover:scale-110">
+                  {item.step}
+                </div>
+                <div className="pt-1">
+                  <h3 className="text-xl font-bold text-warm-800 mb-2">{item.title}</h3>
+                  <p className="text-warm-500 leading-relaxed max-w-lg">{item.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== BOTTOM CTA ===== */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="p-12 rounded-[2rem] bg-warm-900 text-white relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-brand/20 blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-brand/10 blur-2xl translate-y-1/2 -translate-x-1/2" />
+
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-balance">
+                Your people are waiting to hear from you.
+              </h2>
+              <p className="text-warm-400 text-lg mb-8 max-w-xl mx-auto">
+                Stop letting friendships fade. Start using Rolo today.
+              </p>
+              <button
+                onClick={() => setCurrentView('dashboard')}
+                className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-warm-900 font-semibold text-lg bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+              >
+                Open Your Rolo
+                <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 py-8 px-6 text-center">
+        <p className="text-warm-400 text-sm">
+          Built with care. Your data stays on your device.
+        </p>
+      </footer>
     </div>
   );
 }
