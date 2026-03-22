@@ -1,15 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
+import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import { generateOutreachSuggestions } from '../utils/claude';
 import { formatRolodexName } from '../utils/nameFormatter';
+import { calculateDrift, getRelationshipColor } from '../utils/drift';
 import { ArrowLeft, Copy, Check, MessageCircle, Phone, Coffee, Loader2, CheckCircle } from 'lucide-react';
-
-const calculateDrift = (lastInteractionDate) => {
-  if (!lastInteractionDate) return 999;
-  const now = new Date();
-  const last = new Date(lastInteractionDate);
-  return Math.floor((now - last) / (1000 * 60 * 60 * 24));
-};
 
 const getFallbackSuggestions = (contact, drift) => [
   {
@@ -90,6 +85,8 @@ export default function OutreachSuggestions() {
 
   if (!selectedContact) return null;
 
+  const relColor = getRelationshipColor(selectedContact.relationship_type);
+
   return (
     <div className="min-h-screen bg-warm-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
@@ -103,40 +100,68 @@ export default function OutreachSuggestions() {
         </button>
 
         {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <div
+            className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 shadow-md"
+            style={{ background: relColor.hex }}
+          >
+            {selectedContact.name?.charAt(0)}
+          </div>
           <h1 className="text-3xl font-bold text-warm-900 mb-2">
             Reach out to {formatRolodexName(selectedContact.name)}
           </h1>
           <p className="text-warm-500 text-sm">
             {isLoading ? 'AI is crafting personalized suggestions...' : 'Here are some ways to reconnect'}
           </p>
-        </div>
+        </motion.div>
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex flex-col items-center justify-center py-16 animate-fade-in">
-            <Loader2 size={40} className="text-brand animate-spin mb-4" />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center py-16"
+          >
+            <div className="relative mb-4">
+              <div className="w-16 h-16 rounded-full gradient-brand flex items-center justify-center">
+                <Loader2 size={28} className="text-white animate-spin" />
+              </div>
+            </div>
             <p className="text-warm-500 text-sm">Generating ideas...</p>
-          </div>
+          </motion.div>
         )}
 
         {/* Error */}
         {error && !isLoading && (
-          <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6 animate-fade-in">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6"
+          >
             <p className="font-medium text-amber-800 text-sm">Using template suggestions</p>
             <p className="text-xs text-amber-600 mt-1">AI unavailable — customize these templates for your message.</p>
-          </div>
+          </motion.div>
         )}
 
         {/* Suggestions */}
         {!isLoading && suggestions.length > 0 && (
-          <div className="space-y-4 mb-8 animate-slide-up">
+          <div className="space-y-4 mb-8">
             {suggestions.map((suggestion, index) => {
               const config = typeConfig[suggestion.type] || typeConfig.text;
               const Icon = config.icon;
 
               return (
-                <div key={index} className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 hover:shadow-md transition-all">
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 hover:shadow-md transition-all"
+                >
                   {/* Type badge */}
                   <div className="flex items-center gap-2 mb-4">
                     <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.color}`}>
@@ -174,7 +199,7 @@ export default function OutreachSuggestions() {
                       <><Copy size={15} /> Copy Message</>
                     )}
                   </button>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -182,7 +207,12 @@ export default function OutreachSuggestions() {
 
         {/* Actions */}
         {!isLoading && (
-          <div className="space-y-3 animate-slide-up delay-200">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-3"
+          >
             <button
               onClick={handleReachedOut}
               className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-green-500 text-white font-semibold shadow-md shadow-green-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
@@ -196,7 +226,7 @@ export default function OutreachSuggestions() {
             >
               Back to Profile
             </button>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

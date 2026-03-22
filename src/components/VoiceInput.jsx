@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useContext } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import { extractProfile } from '../utils/claude';
 import { formatRolodexName } from '../utils/nameFormatter';
-import { Mic, Square, ArrowLeft, Loader2 } from 'lucide-react';
+import { getRelationshipColor } from '../utils/drift';
+import { Mic, Square, ArrowLeft, Loader2, CheckCircle2, Sparkles } from 'lucide-react';
 
 export default function VoiceInput() {
   const { setCurrentView, addContacts } = useContext(ContactsContext);
@@ -73,10 +75,11 @@ export default function VoiceInput() {
       setError(null);
 
       const profiles = await extractProfile(transcript);
+      setIsProcessing(false);
       setCreatedProfiles(profiles);
       addContacts(profiles);
 
-      setTimeout(() => setCurrentView('dashboard'), 2500);
+      setTimeout(() => setCurrentView('dashboard'), 3000);
     } catch (err) {
       console.error('Error processing transcript:', err);
       setError('Error creating profile. Please try again or check your API key.');
@@ -113,7 +116,11 @@ export default function VoiceInput() {
         </button>
 
         {/* Header */}
-        <div className="text-center mb-10 animate-fade-in">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-10"
+        >
           <h1 className="text-4xl font-bold text-warm-900 mb-2">
             {isProcessing ? 'Processing...' : createdProfiles.length > 0 ? 'Added!' : 'Tell me about them'}
           </h1>
@@ -124,106 +131,187 @@ export default function VoiceInput() {
               ? `${createdProfiles.length} ${createdProfiles.length === 1 ? 'person' : 'people'} added to your Rolo`
               : 'Speak naturally about anyone you want to remember'}
           </p>
-        </div>
+        </motion.div>
 
-        {/* Success */}
-        {createdProfiles.length > 0 && !isProcessing && (
-          <div className="space-y-4 mb-8 animate-slide-up">
-            {createdProfiles.map((profile, index) => (
-              <div key={index} className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="text-xl font-bold text-warm-900">{formatRolodexName(profile.name)}</h3>
-                    <span className="text-xs font-medium text-brand bg-brand-light px-2 py-1 rounded-lg capitalize">
-                      {profile.relationship_type}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-bold text-brand">{profile.importance}</span>
-                    <span className="text-sm text-warm-400">/5</span>
-                  </div>
-                </div>
+        {/* Success state */}
+        <AnimatePresence>
+          {createdProfiles.length > 0 && !isProcessing && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4 mb-8"
+            >
+              {createdProfiles.map((profile, index) => {
+                const relColor = getRelationshipColor(profile.relationship_type);
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.15 }}
+                    className="bg-white rounded-2xl border border-warm-200/60 shadow-sm overflow-hidden"
+                  >
+                    <div className="h-1 w-full" style={{ background: relColor.hex }} />
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold shadow-sm"
+                            style={{ background: relColor.hex }}
+                          >
+                            {profile.name?.charAt(0) || '?'}
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-warm-900">{formatRolodexName(profile.name)}</h3>
+                            <span className="text-xs font-medium text-brand bg-brand-light px-2 py-0.5 rounded-lg capitalize">
+                              {profile.relationship_type}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <CheckCircle2 size={16} className="text-green-500" />
+                          <span className="text-sm font-semibold text-warm-700">{profile.importance}/5</span>
+                        </div>
+                      </div>
 
-                {profile.work && (
-                  <p className="text-sm text-warm-600 mb-1">{profile.work}</p>
-                )}
-                {profile.interests?.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {profile.interests.map((interest, i) => (
-                      <span key={i} className="text-xs bg-warm-100 text-warm-600 px-2 py-1 rounded-lg">{interest}</span>
-                    ))}
-                  </div>
-                )}
-                {profile.open_threads?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-warm-100">
-                    <p className="text-xs font-semibold text-warm-500 uppercase tracking-wider mb-1.5">Follow up on</p>
-                    <ul className="space-y-1">
-                      {profile.open_threads.map((thread, i) => (
-                        <li key={i} className="text-sm text-warm-600 flex items-start gap-1.5">
-                          <span className="text-brand">&#8226;</span>{thread}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                      {profile.work && (
+                        <p className="text-sm text-warm-600 mb-2">{profile.work}</p>
+                      )}
+                      {profile.interests?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {profile.interests.map((interest, i) => (
+                            <span key={i} className="text-xs bg-warm-100 text-warm-600 px-2 py-1 rounded-lg">{interest}</span>
+                          ))}
+                        </div>
+                      )}
+                      {profile.open_threads?.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-warm-100">
+                          <p className="text-xs font-semibold text-warm-500 uppercase tracking-wider mb-1.5">Follow up on</p>
+                          <ul className="space-y-1">
+                            {profile.open_threads.map((thread, i) => (
+                              <li key={i} className="text-sm text-warm-600 flex items-start gap-1.5">
+                                <span className="text-brand mt-0.5">&#8226;</span>{thread}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Recording UI */}
         {!createdProfiles.length && !isProcessing && (
           <>
-            <div className="flex justify-center mb-8 animate-scale-in">
-              <button
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={error && error.includes('not supported')}
-                className={`relative w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${
-                  isRecording ? 'bg-red-500 shadow-red-500/30 scale-110' : 'gradient-brand shadow-brand/30 hover:scale-105 hover:shadow-2xl'
-                } ${error && error.includes('not supported') ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {isRecording ? (
-                  <Square size={32} className="text-white" fill="white" />
-                ) : (
-                  <Mic size={36} className="text-white" />
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                {/* Pulse rings when recording */}
+                {isRecording && (
+                  <>
+                    <div className="absolute inset-0 m-auto w-32 h-32 rounded-full bg-red-400/20 animate-pulse-ring" />
+                    <div className="absolute inset-0 m-auto w-32 h-32 rounded-full bg-red-400/15 animate-pulse-ring" style={{ animationDelay: '0.5s' }} />
+                    <div className="absolute inset-0 m-auto w-32 h-32 rounded-full bg-red-400/10 animate-pulse-ring" style={{ animationDelay: '1s' }} />
+                  </>
                 )}
 
-                {isRecording && (
-                  <span className="absolute inset-0 rounded-full bg-red-400/30 animate-ping" />
-                )}
-              </button>
+                <motion.button
+                  whileHover={{ scale: isRecording ? 1 : 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={error && error.includes('not supported')}
+                  className={`relative w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
+                    isRecording
+                      ? 'bg-red-500 shadow-2xl animate-recording-glow'
+                      : 'gradient-brand shadow-xl shadow-brand/30 hover:shadow-2xl hover:shadow-brand/40'
+                  } ${error && error.includes('not supported') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isRecording ? (
+                    <Square size={32} className="text-white" fill="white" />
+                  ) : (
+                    <Mic size={36} className="text-white" />
+                  )}
+                </motion.button>
+              </div>
             </div>
 
             <p className="text-center text-warm-500 text-sm mb-6">
-              {isRecording ? 'Listening... tap to stop' : 'Tap to start recording'}
+              {isRecording ? 'Listening... tap to stop' : 'Tap the mic to start recording'}
             </p>
 
-            {transcript && (
-              <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-5 mb-6 animate-slide-up">
-                <p className="text-xs font-semibold text-warm-400 uppercase tracking-wider mb-2">Live transcript</p>
-                <p className="text-warm-700 text-sm leading-relaxed">{transcript}</p>
-              </div>
+            <AnimatePresence>
+              {transcript && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-5 mb-6"
+                >
+                  <p className="text-xs font-semibold text-warm-400 uppercase tracking-wider mb-2">Live transcript</p>
+                  <p className="text-warm-700 text-sm leading-relaxed">{transcript}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Tips */}
+            {!isRecording && !transcript && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-5"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles size={14} className="text-brand" />
+                  <p className="text-xs font-semibold text-warm-500 uppercase tracking-wider">Tips</p>
+                </div>
+                <ul className="space-y-2 text-sm text-warm-500">
+                  <li className="flex gap-2"><span className="text-brand">&#8226;</span>Mention multiple people in one recording</li>
+                  <li className="flex gap-2"><span className="text-brand">&#8226;</span>Include how you met, their interests, and recent updates</li>
+                  <li className="flex gap-2"><span className="text-brand">&#8226;</span>Say when you last talked and what to follow up on</li>
+                </ul>
+              </motion.div>
             )}
           </>
         )}
 
         {/* Processing */}
         {isProcessing && (
-          <div className="flex flex-col items-center py-8 animate-fade-in">
-            <Loader2 size={40} className="text-brand animate-spin mb-4" />
-            <p className="text-warm-500 text-sm">Creating connections...</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center py-8"
+          >
+            <div className="relative mb-6">
+              <div className="w-20 h-20 rounded-full gradient-brand flex items-center justify-center">
+                <Loader2 size={32} className="text-white animate-spin" />
+              </div>
+              <div className="absolute inset-0 rounded-full bg-brand/20 animate-pulse-ring" />
+            </div>
+            <p className="text-warm-600 font-medium">Creating connections...</p>
+            <p className="text-warm-400 text-sm mt-1">AI is analyzing your voice memo</p>
+          </motion.div>
         )}
 
         {/* Error */}
-        {error && (
-          <div className="bg-red-50 border border-red-100 rounded-2xl p-4 mb-6 animate-fade-in">
-            <p className="font-medium text-red-700 text-sm">{error}</p>
-            {error.includes('API key') && (
-              <p className="text-xs text-red-500 mt-1">Check your .env file for VITE_ANTHROPIC_API_KEY</p>
-            )}
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="bg-red-50 border border-red-100 rounded-2xl p-4 mb-6"
+            >
+              <p className="font-medium text-red-700 text-sm">{error}</p>
+              {error.includes('API key') && (
+                <p className="text-xs text-red-500 mt-1">Check your .env file for VITE_ANTHROPIC_API_KEY</p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

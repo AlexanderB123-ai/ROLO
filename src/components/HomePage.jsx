@@ -1,16 +1,14 @@
 import { useContext } from 'react';
+import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
+import { calculateDrift } from '../utils/drift';
 import { Mic, Brain, MessageCircle, ArrowRight, Sparkles, Heart, Clock, Shield } from 'lucide-react';
 
 export default function HomePage() {
   const { setCurrentView, contacts } = useContext(ContactsContext);
 
   const driftingCount = contacts.filter(c => {
-    if (!c.last_interaction?.approximate_date) return true;
-    const now = new Date();
-    const last = new Date(c.last_interaction.approximate_date);
-    const daysSince = Math.floor((now - last) / (1000 * 60 * 60 * 24));
-    return daysSince > 30;
+    return calculateDrift(c.last_interaction?.approximate_date) > 30;
   }).length;
 
   return (
@@ -26,27 +24,52 @@ export default function HomePage() {
       <section className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] px-6 pt-20">
         <div className="text-center max-w-3xl mx-auto">
           {/* Badge */}
-          <div className="animate-fade-in inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-light text-brand text-sm font-semibold mb-8 border border-brand/10">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-light text-brand text-sm font-semibold mb-8 border border-brand/10"
+          >
             <Sparkles size={14} />
             AI-Powered Relationship Manager
-          </div>
+          </motion.div>
 
           {/* Main headline */}
-          <h1 className="animate-fade-in delay-100 text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-warm-900 mb-6 text-balance leading-[0.95]">
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-warm-900 mb-6 text-balance leading-[0.95]"
+          >
             Never lose touch
             <span className="block gradient-text">with anyone.</span>
-          </h1>
+          </motion.h1>
 
           {/* Sub-headline */}
-          <p className="animate-fade-in delay-200 text-xl md:text-2xl text-warm-500 max-w-2xl mx-auto mb-4 leading-relaxed font-light">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-xl md:text-2xl text-warm-500 max-w-2xl mx-auto mb-4 leading-relaxed font-light"
+          >
             Social media uses AI to keep you scrolling past your friends.
-          </p>
-          <p className="animate-fade-in delay-300 text-xl md:text-2xl text-warm-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-xl md:text-2xl text-warm-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium"
+          >
             Rolo uses AI to make you <span className="text-brand font-bold">call them</span>.
-          </p>
+          </motion.p>
 
           {/* CTA buttons */}
-          <div className="animate-slide-up delay-400 flex flex-col sm:flex-row gap-4 justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
             <button
               onClick={() => setCurrentView('dashboard')}
               className="group inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-white font-semibold text-lg gradient-brand shadow-lg shadow-brand/25 transition-all duration-300 hover:shadow-xl hover:shadow-brand/30 hover:-translate-y-0.5 active:translate-y-0"
@@ -61,12 +84,17 @@ export default function HomePage() {
               <Mic size={20} className="text-brand" />
               Add by Voice
             </button>
-          </div>
+          </motion.div>
         </div>
 
         {/* Stats row */}
         {contacts.length > 0 && (
-          <div className="animate-slide-up delay-600 mt-16 grid grid-cols-3 gap-4 md:gap-8 w-full max-w-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-16 grid grid-cols-3 gap-4 md:gap-8 w-full max-w-2xl"
+          >
             {[
               { value: contacts.length, label: 'Contacts' },
               { value: driftingCount, label: 'Need Attention' },
@@ -77,16 +105,21 @@ export default function HomePage() {
                 <div className="text-sm text-warm-500 font-medium">{stat.label}</div>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* Scroll indicator */}
-        <div className="animate-fade-in delay-1000 mt-16 flex flex-col items-center gap-2 text-warm-400">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="mt-16 flex flex-col items-center gap-2 text-warm-400"
+        >
           <span className="text-xs font-medium uppercase tracking-widest">Learn more</span>
           <div className="w-5 h-8 rounded-full border-2 border-warm-300 flex justify-center pt-1.5">
             <div className="w-1 h-2 rounded-full bg-warm-400 animate-pulse-soft" />
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ===== WHAT IS ROLO ===== */}
@@ -140,8 +173,12 @@ export default function HomePage() {
                 description: 'Your relationship data stays on your device. No cloud sync, no data mining, no ads.',
               },
             ].map((feature, i) => (
-              <div
+              <motion.div
                 key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
                 className="group p-8 rounded-3xl bg-white border border-warm-200/60 shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-1 hover:border-brand/20"
               >
                 <div className="w-12 h-12 rounded-2xl gradient-brand flex items-center justify-center text-white mb-5 shadow-md shadow-brand/20 transition-transform group-hover:scale-110">
@@ -149,7 +186,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-lg font-bold text-warm-800 mb-2">{feature.title}</h3>
                 <p className="text-warm-500 leading-relaxed text-[15px]">{feature.description}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -180,7 +217,14 @@ export default function HomePage() {
                 description: 'When a relationship starts drifting, Rolo suggests personalized ways to reconnect — a text, a call idea, or a hangout plan.',
               },
             ].map((item, i) => (
-              <div key={i} className="flex gap-6 md:gap-8 items-start group">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex gap-6 md:gap-8 items-start group"
+              >
                 <div className="flex-shrink-0 w-14 h-14 rounded-2xl gradient-brand flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand/20 transition-transform group-hover:scale-110">
                   {item.step}
                 </div>
@@ -188,7 +232,7 @@ export default function HomePage() {
                   <h3 className="text-xl font-bold text-warm-800 mb-2">{item.title}</h3>
                   <p className="text-warm-500 leading-relaxed max-w-lg">{item.description}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

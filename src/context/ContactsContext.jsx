@@ -24,9 +24,7 @@ export function ContactsProvider({ children }) {
 
   // Save contacts to localStorage whenever they change
   useEffect(() => {
-    if (contacts.length > 0) {
-      saveContacts(contacts);
-    }
+    saveContacts(contacts);
   }, [contacts]);
 
   const addContact = (contact) => {

@@ -1,6 +1,8 @@
 import { useContext, useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import { formatRolodexName, getRolodexInitials } from '../utils/nameFormatter';
+import { getRelationshipColor } from '../utils/drift';
 import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 
 export default function InteractionCalendar() {
@@ -42,7 +44,7 @@ export default function InteractionCalendar() {
 
   const interactionStreak = useMemo(() => {
     let streak = 0;
-    let checkDate = new Date();
+    const checkDate = new Date();
     while (true) {
       const dateKey = checkDate.toISOString().split('T')[0];
       if (interactionsByDate[dateKey]?.length > 0) {
@@ -56,15 +58,6 @@ export default function InteractionCalendar() {
   const goToPreviousMonth = () => { setCurrentDate(new Date(year, month - 1, 1)); setSelectedDate(null); };
   const goToNextMonth = () => { setCurrentDate(new Date(year, month + 1, 1)); setSelectedDate(null); };
   const goToToday = () => { setCurrentDate(new Date()); setSelectedDate(null); };
-
-  const getRelationshipColor = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'friend': return '#DD571C';
-      case 'family': return '#22C55E';
-      case 'colleague': return '#3B82F6';
-      default: return '#9C8B7A';
-    }
-  };
 
   const handleDateClick = (day) => {
     const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -123,15 +116,18 @@ export default function InteractionCalendar() {
 
             {dayInteractions.length > 0 && (
               <div className="flex flex-wrap gap-0.5 mt-auto">
-                {dayInteractions.slice(0, 3).map((interaction, idx) => (
-                  <div
-                    key={idx}
-                    className="w-4 h-4 rounded-full text-white text-[8px] flex items-center justify-center font-bold"
-                    style={{ background: getRelationshipColor(interaction.contact.relationship_type) }}
-                  >
-                    {getRolodexInitials(interaction.contact.name)[0]}
-                  </div>
-                ))}
+                {dayInteractions.slice(0, 3).map((interaction, idx) => {
+                  const color = getRelationshipColor(interaction.contact.relationship_type);
+                  return (
+                    <div
+                      key={idx}
+                      className="w-4 h-4 rounded-full text-white text-[8px] flex items-center justify-center font-bold"
+                      style={{ background: color.hex }}
+                    >
+                      {getRolodexInitials(interaction.contact.name)[0]}
+                    </div>
+                  );
+                })}
                 {dayInteractions.length > 3 && (
                   <div className="w-4 h-4 rounded-full bg-warm-300 text-warm-700 text-[8px] flex items-center justify-center font-bold">
                     +{dayInteractions.length - 3}
@@ -156,23 +152,36 @@ export default function InteractionCalendar() {
     <div className="min-h-screen bg-warm-50 pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
           <h1 className="text-4xl md:text-5xl font-bold text-warm-900 mb-2">Calendar</h1>
           <p className="text-warm-500">Track every meaningful connection</p>
-        </div>
+        </motion.div>
 
         {/* Streak */}
         {interactionStreak > 0 && (
-          <div className="mb-6 text-center animate-slide-up">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-6 text-center"
+          >
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl gradient-brand text-white shadow-md shadow-brand/20">
               <Flame size={18} />
               <span className="font-semibold">{interactionStreak} day streak!</span>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Calendar */}
-        <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 mb-6 animate-slide-up delay-100">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 mb-6"
+        >
           {/* Controls */}
           <div className="flex items-center justify-between mb-6">
             <button onClick={goToPreviousMonth} className="p-2 rounded-xl hover:bg-warm-100 transition-colors text-warm-600">
@@ -197,16 +206,19 @@ export default function InteractionCalendar() {
           {/* Legend */}
           <div className="flex flex-wrap gap-4 justify-center text-xs mb-5">
             {[
-              { color: '#DD571C', label: 'Friends' },
-              { color: '#22C55E', label: 'Family' },
-              { color: '#3B82F6', label: 'Colleagues' },
-              { color: '#9C8B7A', label: 'Other' },
-            ].map(item => (
-              <div key={item.label} className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full" style={{ background: item.color }} />
-                <span className="text-warm-500">{item.label}</span>
-              </div>
-            ))}
+              { type: 'friend', label: 'Friends' },
+              { type: 'family', label: 'Family' },
+              { type: 'colleague', label: 'Colleagues' },
+              { type: null, label: 'Other' },
+            ].map(item => {
+              const color = getRelationshipColor(item.type);
+              return (
+                <div key={item.label} className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full" style={{ background: color.hex }} />
+                  <span className="text-warm-500">{item.label}</span>
+                </div>
+              );
+            })}
           </div>
 
           {/* Day headers */}
@@ -222,11 +234,15 @@ export default function InteractionCalendar() {
           <div className="grid grid-cols-7 gap-1.5">
             {renderCalendarDays()}
           </div>
-        </div>
+        </motion.div>
 
         {/* Selected day details */}
         {selectedDate && (selectedDayInteractions.length > 0 || selectedDayBirthdays.length > 0) && (
-          <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 mb-6 animate-scale-in">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 mb-6"
+          >
             <h3 className="font-semibold text-warm-800 mb-4">
               {monthNames[month]} {parseInt(selectedDate.split('-')[2])}
             </h3>
@@ -247,32 +263,40 @@ export default function InteractionCalendar() {
             )}
 
             <div className="space-y-2">
-              {selectedDayInteractions.map((interaction, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => handleContactClick(interaction.contact)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-warm-50 cursor-pointer hover:bg-warm-100 transition-colors"
-                >
+              {selectedDayInteractions.map((interaction, idx) => {
+                const color = getRelationshipColor(interaction.contact.relationship_type);
+                return (
                   <div
-                    className="w-8 h-8 rounded-lg text-white text-xs flex items-center justify-center font-bold flex-shrink-0"
-                    style={{ background: getRelationshipColor(interaction.contact.relationship_type) }}
+                    key={idx}
+                    onClick={() => handleContactClick(interaction.contact)}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-warm-50 cursor-pointer hover:bg-warm-100 transition-colors"
                   >
-                    {getRolodexInitials(interaction.contact.name)[0]}
+                    <div
+                      className="w-8 h-8 rounded-lg text-white text-xs flex items-center justify-center font-bold flex-shrink-0"
+                      style={{ background: color.hex }}
+                    >
+                      {getRolodexInitials(interaction.contact.name)[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm text-warm-800">{formatRolodexName(interaction.contact.name)}</div>
+                      {interaction.summary && (
+                        <p className="text-xs text-warm-500 truncate">{interaction.summary}</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-warm-800">{formatRolodexName(interaction.contact.name)}</div>
-                    {interaction.summary && (
-                      <p className="text-xs text-warm-500 truncate">{interaction.summary}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 animate-slide-up delay-200">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-3 gap-4"
+        >
           {[
             { value: Object.keys(interactionsByDate).length, label: 'Active Days' },
             { value: Object.values(interactionsByDate).flat().length, label: 'Interactions' },
@@ -283,7 +307,7 @@ export default function InteractionCalendar() {
               <div className="text-xs text-warm-500 font-medium">{stat.label}</div>
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

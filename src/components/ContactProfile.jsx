@@ -1,19 +1,9 @@
 import { useContext } from 'react';
+import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import { formatRolodexName, getRolodexInitials } from '../utils/nameFormatter';
+import { calculateDrift, getRelationshipColor, formatDate } from '../utils/drift';
 import { ArrowLeft, MessageCircle, Briefcase, Cake, Heart, Star, Tag, Clock, Pin, TrendingUp } from 'lucide-react';
-
-const calculateDrift = (lastInteractionDate) => {
-  if (!lastInteractionDate) return 999;
-  const now = new Date();
-  const last = new Date(lastInteractionDate);
-  return Math.floor((now - last) / (1000 * 60 * 60 * 24));
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'Unknown';
-  return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-};
 
 export default function ContactProfile() {
   const { selectedContact, setCurrentView, setSelectedContact } = useContext(ContactsContext);
@@ -22,6 +12,7 @@ export default function ContactProfile() {
 
   const contact = selectedContact;
   const drift = calculateDrift(contact.last_interaction?.approximate_date);
+  const relColor = getRelationshipColor(contact.relationship_type);
 
   const handleBack = () => {
     setSelectedContact(null);
@@ -41,12 +32,20 @@ export default function ContactProfile() {
         </button>
 
         {/* Profile header */}
-        <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm overflow-hidden mb-6 animate-fade-in">
-          {/* Top banner */}
-          <div className="h-24 gradient-brand relative">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white rounded-2xl border border-warm-200/60 shadow-sm overflow-hidden mb-6"
+        >
+          {/* Top banner with relationship color */}
+          <div className="h-24 relative" style={{ background: `linear-gradient(135deg, ${relColor.hex}, ${relColor.hex}dd)` }}>
             <div className="absolute -bottom-10 left-6">
               <div className="w-20 h-20 rounded-2xl bg-white p-1 shadow-lg">
-                <div className="w-full h-full rounded-xl gradient-brand flex items-center justify-center text-white font-bold text-2xl">
+                <div
+                  className="w-full h-full rounded-xl flex items-center justify-center text-white font-bold text-2xl"
+                  style={{ background: relColor.hex }}
+                >
                   {getRolodexInitials(contact.name)}
                 </div>
               </div>
@@ -92,7 +91,8 @@ export default function ContactProfile() {
             <div className="flex gap-3">
               <button
                 onClick={() => setCurrentView('outreach')}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white font-medium gradient-brand shadow-sm shadow-brand/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white font-medium shadow-sm shadow-brand/20 hover:shadow-md transition-all hover:-translate-y-0.5"
+                style={{ background: `linear-gradient(135deg, ${relColor.hex}, ${relColor.hex}dd)` }}
               >
                 <MessageCircle size={16} />
                 Reach Out
@@ -105,13 +105,18 @@ export default function ContactProfile() {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Details */}
-        <div className="space-y-4 animate-slide-up delay-100">
+        <div className="space-y-4">
           {/* Info grid */}
           {(contact.how_we_met || contact.work || contact.birthday || contact.significant_other) && (
-            <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6"
+            >
               <div className="grid sm:grid-cols-2 gap-5">
                 {contact.how_we_met && (
                   <DetailItem icon={<Star size={15} />} label="How we met" value={contact.how_we_met} />
@@ -126,12 +131,17 @@ export default function ContactProfile() {
                   <DetailItem icon={<Heart size={15} />} label="Partner" value={contact.significant_other} />
                 )}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Interests */}
           {contact.interests?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6"
+            >
               <h3 className="text-sm font-semibold text-warm-500 uppercase tracking-wider mb-3">Interests</h3>
               <div className="flex flex-wrap gap-2">
                 {contact.interests.map((interest, i) => (
@@ -140,12 +150,17 @@ export default function ContactProfile() {
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Open threads */}
           {contact.open_threads?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6"
+            >
               <div className="flex items-center gap-2 mb-3">
                 <Pin size={14} className="text-brand" />
                 <h3 className="text-sm font-semibold text-warm-500 uppercase tracking-wider">Open Threads</h3>
@@ -158,12 +173,17 @@ export default function ContactProfile() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           )}
 
           {/* Life updates */}
           {contact.life_updates?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6"
+            >
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp size={14} className="text-green-500" />
                 <h3 className="text-sm font-semibold text-warm-500 uppercase tracking-wider">Life Updates</h3>
@@ -176,12 +196,17 @@ export default function ContactProfile() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           )}
 
           {/* Last interaction */}
           {contact.last_interaction && (
-            <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6"
+            >
               <h3 className="text-sm font-semibold text-warm-500 uppercase tracking-wider mb-3">Last Interaction</h3>
               <div className="text-sm text-warm-500 mb-1">
                 {formatDate(contact.last_interaction.approximate_date)} ({drift} days ago)
@@ -189,12 +214,17 @@ export default function ContactProfile() {
               {contact.last_interaction.description && (
                 <p className="text-sm text-warm-700">{contact.last_interaction.description}</p>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Tags */}
           {contact.tags?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6"
+            >
               <div className="flex items-center gap-2 mb-3">
                 <Tag size={14} className="text-warm-400" />
                 <h3 className="text-sm font-semibold text-warm-500 uppercase tracking-wider">Tags</h3>
@@ -206,7 +236,7 @@ export default function ContactProfile() {
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

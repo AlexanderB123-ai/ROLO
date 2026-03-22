@@ -18,8 +18,9 @@ export default function Navigation() {
   const activeIndex = tabs.findIndex(tab => tab.id === currentView);
 
   useEffect(() => {
-    if (tabRefs.current[activeIndex]) {
-      const activeTab = tabRefs.current[activeIndex];
+    const idx = activeIndex >= 0 ? activeIndex : 0;
+    if (tabRefs.current[idx]) {
+      const activeTab = tabRefs.current[idx];
       const { offsetLeft, offsetWidth } = activeTab;
       setIndicatorStyle({ left: offsetLeft, width: offsetWidth });
     }
@@ -31,19 +32,21 @@ export default function Navigation() {
         <div className="max-w-2xl mx-auto glass-strong rounded-2xl shadow-lg shadow-warm-900/5 px-2 py-2">
           <div className="relative flex items-center">
             {/* Sliding indicator */}
-            <motion.div
-              className="absolute h-full rounded-xl gradient-brand shadow-md shadow-brand/25"
-              initial={false}
-              animate={{
-                left: indicatorStyle.left,
-                width: indicatorStyle.width,
-                transition: {
-                  type: 'spring',
-                  stiffness: 400,
-                  damping: 35
-                }
-              }}
-            />
+            {activeIndex >= 0 && (
+              <motion.div
+                className="absolute h-full rounded-xl gradient-brand shadow-md shadow-brand/25"
+                initial={false}
+                animate={{
+                  left: indicatorStyle.left,
+                  width: indicatorStyle.width,
+                  transition: {
+                    type: 'spring',
+                    stiffness: 400,
+                    damping: 35
+                  }
+                }}
+              />
+            )}
 
             {/* Tab buttons */}
             {tabs.map((tab, index) => {
