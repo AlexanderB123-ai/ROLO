@@ -36,6 +36,16 @@ export default function HomePage() {
             AI-Powered Relationship Manager
           </motion.div>
 
+          {/* Rolo wordmark */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="mb-4"
+          >
+            <span className="text-2xl font-extrabold gradient-text tracking-tight">Rolo</span>
+          </motion.div>
+
           {/* Main headline */}
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -276,7 +286,7 @@ export default function HomePage() {
             </button>
 
             <p className="mt-8 text-warm-400 text-sm">
-              Built with love at Pioneering Minds AI Hackathon 2026
+              Your data stays on your device. Always.
             </p>
           </motion.div>
         </div>
