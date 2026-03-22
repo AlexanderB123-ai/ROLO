@@ -191,7 +191,7 @@ export default function VoiceInput() {
                             {profile.name?.charAt(0) || '?'}
                           </div>
                           <div>
-                            <h3 className="text-lg font-bold text-warm-900">{formatRolodexName(profile.name)}</h3>
+                            <h3 className="text-lg font-bold text-warm-900">{profile.name}</h3>
                             <span className="text-xs font-medium text-brand bg-brand-light px-2 py-0.5 rounded-lg capitalize">
                               {profile.relationship_type}
                             </span>

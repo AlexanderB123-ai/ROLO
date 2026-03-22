@@ -1,9 +1,17 @@
 import { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
-import { formatRolodexName, getRolodexInitials } from '../utils/nameFormatter';
+import { getRolodexInitials } from '../utils/nameFormatter';
 import { calculateDrift, getRelationshipColor, formatDate } from '../utils/drift';
 import { ArrowLeft, MessageCircle, Briefcase, Cake, Heart, Star, Tag, Clock, Pin, TrendingUp } from 'lucide-react';
+
+function darkenHex(hex, amount = 40) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, (num >> 16) - amount);
+  const g = Math.max(0, ((num >> 8) & 0x00FF) - amount);
+  const b = Math.max(0, (num & 0x0000FF) - amount);
+  return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+}
 
 export default function ContactProfile() {
   const { selectedContact, setCurrentView, setSelectedContact } = useContext(ContactsContext);
@@ -13,6 +21,7 @@ export default function ContactProfile() {
   const contact = selectedContact;
   const drift = calculateDrift(contact.last_interaction?.approximate_date);
   const relColor = getRelationshipColor(contact.relationship_type);
+  const darkerColor = darkenHex(relColor.hex, 50);
 
   const handleBack = () => {
     setSelectedContact(null);
@@ -20,7 +29,7 @@ export default function ContactProfile() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4">
+    <div className="min-h-screen py-8 px-4 pb-24">
       <div className="max-w-2xl mx-auto">
         {/* Back button */}
         <button
@@ -38,8 +47,18 @@ export default function ContactProfile() {
           transition={{ duration: 0.3 }}
           className="bg-white rounded-2xl border border-warm-200/60 shadow-sm overflow-hidden mb-6"
         >
-          {/* Top banner with relationship color */}
-          <div className="h-24 relative" style={{ background: `linear-gradient(135deg, ${relColor.hex}, ${relColor.hex}dd)` }}>
+          {/* Top banner with gradient */}
+          <div
+            className="h-36 relative"
+            style={{ background: `linear-gradient(135deg, ${relColor.hex}dd, ${darkerColor})` }}
+          >
+            {/* Name overlaid on banner */}
+            <div className="absolute bottom-4 right-6 text-right">
+              <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-sm">{contact.name}</h1>
+              <span className="text-sm text-white/80 capitalize">{contact.relationship_type}</span>
+            </div>
+
+            {/* Avatar overlapping bottom-left */}
             <div className="absolute -bottom-10 left-6">
               <div className="w-20 h-20 rounded-2xl bg-white p-1 shadow-lg">
                 <div
@@ -53,11 +72,7 @@ export default function ContactProfile() {
           </div>
 
           <div className="pt-14 px-6 pb-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-warm-900">{formatRolodexName(contact.name)}</h1>
-                <span className="text-sm text-warm-500 capitalize">{contact.relationship_type}</span>
-              </div>
+            <div className="flex items-start justify-end mb-4">
               <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-warm-50">
                 <Star size={14} className="text-brand" fill="currentColor" />
                 <span className="text-sm font-semibold text-warm-700">{contact.importance}/5</span>
@@ -92,7 +107,7 @@ export default function ContactProfile() {
               <button
                 onClick={() => setCurrentView('outreach')}
                 className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white font-medium shadow-sm shadow-brand/20 hover:shadow-md transition-all hover:-translate-y-0.5"
-                style={{ background: `linear-gradient(135deg, ${relColor.hex}, ${relColor.hex}dd)` }}
+                style={{ background: `linear-gradient(135deg, ${relColor.hex}, ${darkerColor})` }}
               >
                 <MessageCircle size={16} />
                 Reach Out

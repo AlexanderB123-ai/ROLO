@@ -1,6 +1,6 @@
 import { useContext, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Lightbulb, Calendar, Sparkles } from 'lucide-react';
+import { Home, Users, Lightbulb, Calendar, Sparkles } from 'lucide-react';
 import { ContactsContext } from '../context/ContactsContext';
 
 export default function Navigation() {
@@ -9,6 +9,7 @@ export default function Navigation() {
   const tabRefs = useRef([]);
 
   const tabs = [
+    { id: 'home', label: 'Rolo', icon: Home },
     { id: 'dashboard', label: 'Contacts', icon: Users },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'suggestions', label: 'Suggestions', icon: Lightbulb },
@@ -29,12 +30,13 @@ export default function Navigation() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50" role="navigation" aria-label="Main navigation">
       <div className="mx-4 mt-4">
-        <div className="max-w-2xl mx-auto glass-strong rounded-2xl shadow-lg shadow-warm-900/5 px-2 py-2">
+        <div className="max-w-2xl mx-auto glass-strong rounded-2xl shadow-lg shadow-warm-900/5 px-1.5 py-1.5">
           <div className="relative flex items-center">
             {/* Sliding indicator */}
             {activeIndex >= 0 && (
               <motion.div
-                className="absolute h-full rounded-xl gradient-brand shadow-md shadow-brand/25"
+                className="absolute h-full rounded-xl gradient-brand"
+                style={{ boxShadow: '0 2px 8px rgba(221, 87, 28, 0.3)' }}
                 initial={false}
                 animate={{
                   left: indicatorStyle.left,
@@ -60,13 +62,14 @@ export default function Navigation() {
                   onClick={() => setCurrentView(tab.id)}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
-                  className="relative flex-1 px-4 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center gap-2 z-10"
+                  className="relative flex-1 px-3 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center gap-1.5 z-10"
                   style={{
                     color: isActive ? '#FFFFFF' : '#9C8B7A',
+                    textShadow: isActive ? '0 1px 2px rgba(0,0,0,0.15)' : 'none',
                   }}
                 >
-                  <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
-                  <span className="text-sm">{tab.label}</span>
+                  <Icon size={15} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="text-xs font-semibold">{tab.label}</span>
                 </button>
               );
             })}

@@ -25,7 +25,8 @@
   }
 
   body {
-    background: var(--color-warm-50);
+    background: linear-gradient(180deg, #FFF8F4 0%, #FDF5EF 50%, #FAF0E8 100%);
+    background-attachment: fixed;
     color: var(--color-warm-800);
     min-height: 100vh;
   }

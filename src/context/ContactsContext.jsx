@@ -6,7 +6,7 @@ export const ContactsContext = createContext();
 
 export function ContactsProvider({ children }) {
   const [contacts, setContacts] = useState([]);
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState('home');
   const [selectedContact, setSelectedContact] = useState(null);
 
   // Load contacts from localStorage on mount

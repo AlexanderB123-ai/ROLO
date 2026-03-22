@@ -72,7 +72,7 @@ export default function OutreachSuggestions() {
   const relColor = getRelationshipColor(selectedContact.relationship_type);
 
   return (
-    <div className="min-h-screen py-8 px-4">
+    <div className="min-h-screen py-8 pb-24 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Back */}
         <button
@@ -97,7 +97,7 @@ export default function OutreachSuggestions() {
             {selectedContact.name?.charAt(0)}
           </div>
           <h1 className="text-3xl font-bold text-warm-900 mb-2">
-            Reach out to {formatRolodexName(selectedContact.name)}
+            Reach out to {selectedContact.name}
           </h1>
           <p className="text-warm-500 text-sm">
             {isLoading ? 'AI is crafting personalized suggestions...' : 'Here are some ways to reconnect'}

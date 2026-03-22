@@ -4,6 +4,15 @@ import { ContactsContext } from '../context/ContactsContext';
 import { calculateDrift } from '../utils/drift';
 import { Send, Loader2, Sparkles } from 'lucide-react';
 
+const SUGGESTED_PROMPTS = [
+  'Who should I reach out to?',
+  'Plan a group dinner',
+  'Who works in tech?',
+  'Friends with upcoming birthdays',
+  'Who have I not seen in 3 months?',
+  'Find people who like hiking',
+];
+
 export default function AskAI() {
   const { contacts } = useContext(ContactsContext);
   const [messages, setMessages] = useState([
@@ -16,14 +25,16 @@ export default function AskAI() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const hasUserMessages = messages.some(m => m.role === 'user');
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageText) => {
+    if (!messageText.trim() || isLoading) return;
 
-    const userMessage = input.trim();
+    const userMessage = messageText.trim();
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
@@ -97,17 +108,23 @@ Guidelines:
     }
   };
 
+  const handleSend = () => sendMessage(input);
+
+  const handlePromptClick = (prompt) => {
+    sendMessage(prompt);
+  };
+
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-20 pb-24 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-6"
+          className="text-center mb-5"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-warm-900 mb-2">Ask Rolo</h1>
-          <p className="text-warm-500">Plan events, find connections, explore your network</p>
+          <h1 className="text-3xl font-bold text-warm-900 mb-1">Ask Rolo</h1>
+          <p className="text-warm-500 text-sm">Plan events, find connections, explore your network</p>
         </motion.div>
 
         {/* Chat */}
@@ -116,7 +133,7 @@ Guidelines:
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="bg-white rounded-2xl border border-warm-200/60 shadow-sm flex flex-col overflow-hidden"
-          style={{ height: 'calc(100vh - 260px)', minHeight: '400px' }}
+          style={{ height: 'calc(100vh - 220px)', minHeight: '400px' }}
         >
           {/* Chat header */}
           <div className="flex items-center gap-3 px-5 py-3 border-b border-warm-100">
@@ -142,6 +159,22 @@ Guidelines:
                 </div>
               </div>
             ))}
+
+            {/* Suggested prompts - only show before any user messages */}
+            {!hasUserMessages && !isLoading && (
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                {SUGGESTED_PROMPTS.map((prompt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handlePromptClick(prompt)}
+                    className="text-left px-3.5 py-3 rounded-xl bg-warm-50 border border-warm-200/60 text-sm text-warm-600 hover:bg-brand-light hover:border-brand/20 hover:text-brand transition-all duration-200"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-warm-50 rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-2">

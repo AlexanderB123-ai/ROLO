@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import ContactCard from './ContactCard';
-import { formatRolodexName } from '../utils/nameFormatter';
 import { calculateDrift, getDriftOpacity, daysUntilBirthday, getRelationshipColor } from '../utils/drift';
 import { Mic, AlertCircle, Cake, Users, Heart, UserCheck, UserMinus } from 'lucide-react';
 
@@ -37,20 +36,20 @@ export default function Dashboard() {
   const renderRing = (title, icon, contactList, gridCols, accentColor, bgTint) => {
     if (contactList.length === 0) return null;
     return (
-      <motion.div variants={fadeUp} className="mb-8">
-        <div className="flex items-center gap-3 mb-5">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accentColor}`}>
+      <motion.div variants={fadeUp} className="mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${accentColor}`}>
             {icon}
           </div>
           <div>
-            <h3 className="text-sm font-bold text-warm-700 uppercase tracking-wider">{title}</h3>
-            <p className="text-xs text-warm-400">{contactList.length} {contactList.length === 1 ? 'person' : 'people'}</p>
+            <h3 className="text-xs font-bold text-warm-700 uppercase tracking-wider">{title}</h3>
+            <p className="text-[11px] text-warm-400">{contactList.length} {contactList.length === 1 ? 'person' : 'people'}</p>
           </div>
           <div className="h-px flex-1 bg-warm-200/60" />
         </div>
 
-        <div className={`rounded-2xl p-4 ${bgTint}`}>
-          <div className={`grid ${gridCols} gap-4`}>
+        <div className={`rounded-2xl p-3 ${bgTint}`}>
+          <div className={`grid ${gridCols} gap-3`}>
             {contactList.map(contact => {
               const drift = calculateDrift(contact.last_interaction?.approximate_date);
               const opacity = getDriftOpacity(drift);
@@ -67,59 +66,37 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-20 pb-24 px-4">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="text-center mb-10"
+          className="text-center mb-4"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-warm-900 mb-2">Your People</h1>
-          <p className="text-warm-500">The closer they are, the more they matter</p>
+          <h1 className="text-3xl font-bold text-warm-900 mb-1">Your People</h1>
+          <p className="text-warm-500 text-sm">The closer they are, the more they matter</p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="grid grid-cols-3 gap-4 mb-10"
+          className="grid grid-cols-3 gap-3 mb-6"
         >
           {[
-            { value: contacts.length, label: 'Contacts', icon: <Users size={16} />, color: 'text-brand bg-brand-light' },
-            { value: driftingContacts.length, label: 'Drifting', icon: <UserMinus size={16} />, color: driftingContacts.length > 0 ? 'text-amber-600 bg-amber-50' : 'text-brand bg-brand-light' },
-            { value: upcomingBirthdays.length, label: 'Birthdays', icon: <Cake size={16} />, color: 'text-brand bg-brand-light' },
+            { value: contacts.length, label: 'Contacts', icon: <Users size={15} />, color: 'text-brand bg-brand-light' },
+            { value: driftingContacts.length, label: 'Drifting', icon: <UserMinus size={15} />, color: driftingContacts.length > 0 ? 'text-amber-600 bg-amber-50' : 'text-brand bg-brand-light' },
+            { value: upcomingBirthdays.length, label: 'Birthdays', icon: <Cake size={15} />, color: 'text-brand bg-brand-light' },
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-2xl p-5 text-center border border-warm-200/60 shadow-sm hover:shadow-md transition-shadow">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-3 ${stat.color}`}>
+            <div key={i} className="bg-white rounded-2xl p-4 text-center border border-warm-200/60 shadow-sm hover:shadow-md transition-shadow">
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center mx-auto mb-2 ${stat.color}`}>
                 {stat.icon}
               </div>
-              <div className="text-3xl font-bold text-warm-800 mb-1">{stat.value}</div>
-              <div className="text-xs text-warm-500 font-medium">{stat.label}</div>
+              <div className="text-2xl font-bold text-warm-800 mb-0.5">{stat.value}</div>
+              <div className="text-[11px] text-warm-500 font-medium">{stat.label}</div>
             </div>
           ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.15 }}
-          className="flex flex-wrap gap-4 justify-center mb-8"
-        >
-          {[
-            { type: 'friend', label: 'Friends' },
-            { type: 'family', label: 'Family' },
-            { type: 'colleague', label: 'Colleagues' },
-            { type: 'mentor', label: 'Mentors' },
-          ].map(item => {
-            const color = getRelationshipColor(item.type);
-            return (
-              <div key={item.type} className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full" style={{ background: color.hex }} />
-                <span className="text-xs text-warm-500 font-medium">{item.label}</span>
-              </div>
-            );
-          })}
         </motion.div>
 
         {upcomingBirthdays.length > 0 && (
@@ -127,14 +104,14 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15 }}
-            className="mb-8"
+            className="mb-6"
           >
-            <div className="bg-white rounded-2xl p-6 border border-warm-200/60 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <Cake size={18} className="text-brand" />
-                <h3 className="font-semibold text-warm-800">Upcoming Birthdays</h3>
+            <div className="bg-white rounded-2xl p-5 border border-warm-200/60 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <Cake size={16} className="text-brand" />
+                <h3 className="font-semibold text-warm-800 text-sm">Upcoming Birthdays</h3>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {upcomingBirthdays.slice(0, 3).map(contact => {
                   const days = daysUntilBirthday(contact.birthday);
                   const relColor = getRelationshipColor(contact.relationship_type);
@@ -142,16 +119,16 @@ export default function Dashboard() {
                     <div
                       key={contact.id}
                       onClick={() => handleContactClick(contact)}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-warm-50 cursor-pointer hover:bg-warm-100 transition-colors"
+                      className="flex items-center gap-3 p-2.5 rounded-xl bg-warm-50 cursor-pointer hover:bg-warm-100 transition-colors"
                     >
                       <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm"
                         style={{ background: relColor.hex }}
                       >
                         {contact.name.charAt(0)}
                       </div>
                       <div>
-                        <div className="font-medium text-warm-800 text-sm">{formatRolodexName(contact.name)}</div>
+                        <div className="font-medium text-warm-800 text-sm">{contact.name}</div>
                         <div className="text-xs font-medium text-brand">
                           {days === 0 ? 'Today!' : days === 1 ? 'Tomorrow' : `in ${days} days`}
                         </div>
@@ -169,14 +146,14 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="mb-8"
+            className="mb-6"
           >
             <button
               onClick={() => setCurrentView('suggestions')}
-              className="w-full bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-center gap-4 text-left hover:bg-amber-100/80 transition-colors group"
+              className="w-full bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4 text-left hover:bg-amber-100/80 transition-colors group"
             >
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <AlertCircle size={20} className="text-amber-600" />
+              <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <AlertCircle size={18} className="text-amber-600" />
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-amber-800 text-sm">
@@ -191,19 +168,19 @@ export default function Dashboard() {
 
         <motion.div variants={stagger} initial="initial" animate="animate">
           {renderRing(
-            'Inner Circle', <Heart size={14} className="text-white" />,
+            'Inner Circle', <Heart size={13} className="text-white" />,
             innerRing, 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
             'gradient-brand text-white',
             'bg-gradient-to-br from-brand-light/50 to-transparent'
           )}
           {renderRing(
-            'Good Friends', <UserCheck size={14} className="text-white" />,
+            'Good Friends', <UserCheck size={13} className="text-white" />,
             middleRing, 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
             'bg-warm-500 text-white',
             'bg-warm-100/40'
           )}
           {renderRing(
-            'Acquaintances', <Users size={14} className="text-white" />,
+            'Acquaintances', <Users size={13} className="text-white" />,
             outerRing, 'grid-cols-2 md:grid-cols-4 lg:grid-cols-6',
             'bg-warm-400 text-white',
             'bg-warm-100/20'
@@ -233,17 +210,22 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* FAB with pulse animation */}
-      <motion.button
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.5 }}
-        onClick={() => setCurrentView('voice')}
-        aria-label="Add contact by voice"
-        className="fixed bottom-8 right-8 w-16 h-16 rounded-2xl gradient-brand text-white shadow-lg shadow-brand/30 flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:shadow-brand/40 hover:scale-105 active:scale-95 z-50 animate-mic-pulse"
-      >
-        <Mic size={24} />
-      </motion.button>
+      {/* FAB with tooltip */}
+      <div className="fixed bottom-8 right-8 z-50 group">
+        <div className="absolute -top-10 right-1/2 translate-x-1/2 px-3 py-1.5 rounded-lg bg-warm-800 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+          Add contact
+        </div>
+        <motion.button
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.5 }}
+          onClick={() => setCurrentView('voice')}
+          aria-label="Add contact by voice"
+          className="w-[72px] h-[72px] rounded-2xl gradient-brand text-white shadow-lg shadow-brand/30 flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:shadow-brand/40 hover:scale-105 active:scale-95 animate-mic-pulse ring-2 ring-white/40"
+        >
+          <Mic size={28} />
+        </motion.button>
+      </div>
     </div>
   );
 }

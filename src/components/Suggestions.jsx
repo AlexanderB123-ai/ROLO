@@ -32,7 +32,7 @@ export default function Suggestions() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-20 pb-24 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <motion.div
@@ -105,7 +105,8 @@ export default function Suggestions() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05, duration: 0.3 }}
-                  className="bg-white rounded-2xl p-5 border border-warm-200/60 shadow-sm hover:shadow-md hover:border-brand/15 transition-all duration-300 group"
+                  className="bg-white rounded-2xl p-5 border border-warm-200/60 shadow-sm hover:shadow-md hover:border-brand/15 transition-all duration-300 group border-l-4"
+                  style={{ borderLeftColor: driftColor.text.includes('red') ? '#EF4444' : driftColor.text.includes('amber') ? '#F59E0B' : '#F97316' }}
                 >
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
@@ -118,7 +119,7 @@ export default function Suggestions() {
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-warm-800 truncate">{formatRolodexName(contact.name)}</h3>
+                      <h3 className="font-semibold text-warm-800 truncate">{contact.name}</h3>
                       <div className="flex items-center gap-3 mt-1 flex-wrap">
                         <span className="text-xs text-warm-400 capitalize">{contact.relationship_type}</span>
                         <span className={`inline-flex items-center gap-1 text-xs font-medium ${driftColor.text}`}>

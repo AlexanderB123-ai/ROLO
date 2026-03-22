@@ -119,11 +119,17 @@ export default function InteractionCalendar() {
               'bg-warm-100/50 hover:bg-warm-100'
             }`}
           >
-            <span className={`text-xs font-semibold mb-0.5 ${
-              isCurrentDay ? 'text-brand' : hasActivity ? 'text-warm-700' : 'text-warm-400'
-            }`}>
-              {day}
-            </span>
+            {isCurrentDay ? (
+              <span className="w-6 h-6 rounded-full gradient-brand text-white text-xs font-bold flex items-center justify-center mb-0.5">
+                {day}
+              </span>
+            ) : (
+              <span className={`text-xs font-semibold mb-0.5 ${
+                hasActivity ? 'text-warm-700' : 'text-warm-400'
+              }`}>
+                {day}
+              </span>
+            )}
 
             {dayBirthdays.length > 0 && (
               <div className="flex gap-0.5 mb-0.5">
@@ -168,7 +174,7 @@ export default function InteractionCalendar() {
     : [];
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-20 pb-24 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -260,7 +266,7 @@ export default function InteractionCalendar() {
                     className="flex items-center gap-3 p-3 rounded-xl bg-green-50 cursor-pointer hover:bg-green-100 transition-colors mb-2"
                   >
                     <span className="text-lg">&#127874;</span>
-                    <span className="font-medium text-sm text-green-700">{formatRolodexName(bday.contact.name)}'s birthday</span>
+                    <span className="font-medium text-sm text-green-700">{bday.contact.name}'s birthday</span>
                   </div>
                 ))}
               </div>
@@ -282,7 +288,7 @@ export default function InteractionCalendar() {
                       {getRolodexInitials(interaction.contact.name)[0]}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-warm-800">{formatRolodexName(interaction.contact.name)}</div>
+                      <div className="font-medium text-sm text-warm-800">{interaction.contact.name}</div>
                       {interaction.summary && (
                         <p className="text-xs text-warm-500 truncate">{interaction.summary}</p>
                       )}
