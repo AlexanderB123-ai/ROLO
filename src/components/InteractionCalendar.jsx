@@ -1,11 +1,9 @@
 import { useContext, useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
-import { formatRolodexName, getRolodexInitials } from '../utils/nameFormatter';
 import { getRelationshipColor } from '../utils/drift';
-import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flame, Calendar, Cake, MessageCircle, X } from 'lucide-react';
 
-// Normalize contacts: if they have last_interaction but no interactions[], create one
 function normalizeInteractions(contacts) {
   return contacts.map(contact => {
     if (contact.interactions?.length > 0) return contact;
@@ -22,6 +20,10 @@ function normalizeInteractions(contacts) {
   });
 }
 
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+const DAY_NAMES = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
 export default function InteractionCalendar() {
   const { contacts: rawContacts, setCurrentView, setSelectedContact } = useContext(ContactsContext);
   const contacts = useMemo(() => normalizeInteractions(rawContacts), [rawContacts]);
@@ -30,14 +32,8 @@ export default function InteractionCalendar() {
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
-  const firstDayOfMonth = new Date(year, month, 1);
-  const lastDayOfMonth = new Date(year, month + 1, 0);
-  const daysInMonth = lastDayOfMonth.getDate();
-  const startingDayOfWeek = firstDayOfMonth.getDay();
-
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startingDayOfWeek = new Date(year, month, 1).getDay();
 
   const interactionsByDate = useMemo(() => {
     const grouped = {};
@@ -73,6 +69,10 @@ export default function InteractionCalendar() {
     return streak;
   }, [interactionsByDate]);
 
+  const totalInteractions = useMemo(() => {
+    return Object.values(interactionsByDate).flat().length;
+  }, [interactionsByDate]);
+
   const goToPreviousMonth = () => { setCurrentDate(new Date(year, month - 1, 1)); setSelectedDate(null); };
   const goToNextMonth = () => { setCurrentDate(new Date(year, month + 1, 1)); setSelectedDate(null); };
   const goToToday = () => { setCurrentDate(new Date()); setSelectedDate(null); };
@@ -92,82 +92,6 @@ export default function InteractionCalendar() {
     return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
   };
 
-  const renderCalendarDays = () => {
-    const days = [];
-
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(<div key={`empty-${i}`} className="aspect-square" />);
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const dayInteractions = interactionsByDate[dateKey] || [];
-      const dayBirthdays = birthdaysThisMonth.filter(b => b.day === day);
-      const hasActivity = dayInteractions.length > 0 || dayBirthdays.length > 0;
-      const isCurrentDay = isToday(day);
-      const isSelected = selectedDate === dateKey;
-
-      days.push(
-        <div key={day} className="aspect-square">
-          <button
-            onClick={() => handleDateClick(day)}
-            aria-label={`${monthNames[month]} ${day}${hasActivity ? ', has activity' : ''}`}
-            className={`w-full h-full rounded-xl transition-all duration-200 p-1.5 flex flex-col text-left ${
-              isSelected ? 'ring-2 ring-brand shadow-md bg-white' :
-              isCurrentDay ? 'ring-2 ring-brand/30 bg-white shadow-sm' :
-              hasActivity ? 'bg-white hover:shadow-sm' :
-              'bg-warm-100/50 hover:bg-warm-100'
-            }`}
-          >
-            {isCurrentDay ? (
-              <span className="w-6 h-6 rounded-full gradient-brand text-white text-xs font-bold flex items-center justify-center mb-0.5">
-                {day}
-              </span>
-            ) : (
-              <span className={`text-xs font-semibold mb-0.5 ${
-                hasActivity ? 'text-warm-700' : 'text-warm-400'
-              }`}>
-                {day}
-              </span>
-            )}
-
-            {dayBirthdays.length > 0 && (
-              <div className="flex gap-0.5 mb-0.5">
-                {dayBirthdays.map((_, idx) => (
-                  <span key={idx} className="text-[10px] leading-none">&#127874;</span>
-                ))}
-              </div>
-            )}
-
-            {dayInteractions.length > 0 && (
-              <div className="flex flex-wrap gap-0.5 mt-auto">
-                {dayInteractions.slice(0, 3).map((interaction, idx) => {
-                  const color = getRelationshipColor(interaction.contact.relationship_type);
-                  return (
-                    <div
-                      key={idx}
-                      className="w-4 h-4 rounded-full text-white text-[8px] flex items-center justify-center font-bold"
-                      style={{ background: color.hex }}
-                    >
-                      {getRolodexInitials(interaction.contact.name)[0]}
-                    </div>
-                  );
-                })}
-                {dayInteractions.length > 3 && (
-                  <div className="w-4 h-4 rounded-full bg-warm-300 text-warm-700 text-[8px] flex items-center justify-center font-bold">
-                    +{dayInteractions.length - 3}
-                  </div>
-                )}
-              </div>
-            )}
-          </button>
-        </div>
-      );
-    }
-
-    return days;
-  };
-
   const selectedDayInteractions = selectedDate ? (interactionsByDate[selectedDate] || []) : [];
   const selectedDayBirthdays = selectedDate
     ? birthdaysThisMonth.filter(b => b.day === parseInt(selectedDate.split('-')[2]))
@@ -175,148 +99,241 @@ export default function InteractionCalendar() {
 
   return (
     <div className="min-h-screen pt-20 pb-24 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-warm-900 mb-2">Calendar</h1>
-          <p className="text-warm-500">Track every meaningful connection</p>
+          <h1 className="text-3xl font-bold text-warm-900 mb-1">Calendar</h1>
+          <p className="text-warm-500 text-sm">Track every meaningful connection</p>
         </motion.div>
 
-        {interactionStreak > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl gradient-brand text-white shadow-md shadow-brand/20">
-              <Flame size={18} />
-              <span className="font-semibold">{interactionStreak} day streak!</span>
+        {/* Stats row */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="grid grid-cols-3 gap-3 mb-5"
+        >
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-warm-200/60 p-3.5 text-center">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <Flame size={14} className="text-brand" />
+              <span className="text-xl font-bold text-warm-800">{interactionStreak}</span>
             </div>
-          </motion.div>
-        )}
+            <span className="text-[11px] text-warm-500 font-medium">Day Streak</span>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-warm-200/60 p-3.5 text-center">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <MessageCircle size={14} className="text-brand" />
+              <span className="text-xl font-bold text-warm-800">{totalInteractions}</span>
+            </div>
+            <span className="text-[11px] text-warm-500 font-medium">Interactions</span>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-warm-200/60 p-3.5 text-center">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <Cake size={14} className="text-brand" />
+              <span className="text-xl font-bold text-warm-800">{birthdaysThisMonth.length}</span>
+            </div>
+            <span className="text-[11px] text-warm-500 font-medium">Birthdays</span>
+          </div>
+        </motion.div>
 
+        {/* Calendar card */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 mb-6"
+          className="bg-white/80 backdrop-blur-sm rounded-2xl border border-warm-200/60 shadow-sm overflow-hidden mb-5"
         >
-          <div className="flex items-center justify-between mb-6">
-            <button onClick={goToPreviousMonth} aria-label="Previous month" className="p-2 rounded-xl hover:bg-warm-100 transition-colors text-warm-600">
-              <ChevronLeft size={20} />
+          {/* Month navigation */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-warm-100">
+            <button onClick={goToPreviousMonth} className="w-8 h-8 rounded-lg hover:bg-warm-100 flex items-center justify-center transition-colors text-warm-500">
+              <ChevronLeft size={18} />
             </button>
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-warm-800">{monthNames[month]} {year}</h2>
-              <button onClick={goToToday} className="px-3 py-1 rounded-lg text-xs font-semibold text-brand bg-brand-light hover:bg-brand/15 transition-colors">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-lg font-bold text-warm-800">{MONTH_NAMES[month]} {year}</h2>
+              <button onClick={goToToday} className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-brand bg-brand-light hover:bg-brand/15 transition-colors uppercase tracking-wide">
                 Today
               </button>
             </div>
-            <button onClick={goToNextMonth} aria-label="Next month" className="p-2 rounded-xl hover:bg-warm-100 transition-colors text-warm-600">
-              <ChevronRight size={20} />
+            <button onClick={goToNextMonth} className="w-8 h-8 rounded-lg hover:bg-warm-100 flex items-center justify-center transition-colors text-warm-500">
+              <ChevronRight size={18} />
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-4 justify-center text-xs mb-5">
-            {[
-              { type: 'friend', label: 'Friends' },
-              { type: 'family', label: 'Family' },
-              { type: 'colleague', label: 'Colleagues' },
-              { type: null, label: 'Other' },
-            ].map(item => {
-              const color = getRelationshipColor(item.type);
+          {/* Day headers */}
+          <div className="grid grid-cols-7 px-3 pt-3">
+            {DAY_NAMES.map((day, i) => (
+              <div key={i} className="text-center text-[11px] font-bold text-warm-400 uppercase tracking-wide py-2">{day}</div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-px px-3 pb-4">
+            {/* Empty cells */}
+            {Array.from({ length: startingDayOfWeek }, (_, i) => (
+              <div key={`empty-${i}`} className="aspect-square" />
+            ))}
+
+            {/* Day cells */}
+            {Array.from({ length: daysInMonth }, (_, i) => {
+              const day = i + 1;
+              const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+              const dayInteractions = interactionsByDate[dateKey] || [];
+              const dayBirthdays = birthdaysThisMonth.filter(b => b.day === day);
+              const hasInteractions = dayInteractions.length > 0;
+              const hasBirthdays = dayBirthdays.length > 0;
+              const currentDay = isToday(day);
+              const isSelected = selectedDate === dateKey;
+
               return (
-                <div key={item.label} className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full" style={{ background: color.hex }} />
-                  <span className="text-warm-500">{item.label}</span>
-                </div>
+                <button
+                  key={day}
+                  onClick={() => handleDateClick(day)}
+                  className={`aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-brand text-white shadow-md shadow-brand/20 scale-105'
+                      : currentDay
+                      ? 'bg-brand/10 ring-2 ring-brand/30'
+                      : hasInteractions || hasBirthdays
+                      ? 'bg-warm-50 hover:bg-warm-100'
+                      : 'hover:bg-warm-50'
+                  }`}
+                >
+                  <span className={`text-sm font-semibold ${
+                    isSelected
+                      ? 'text-white'
+                      : currentDay
+                      ? 'text-brand font-bold'
+                      : hasInteractions || hasBirthdays
+                      ? 'text-warm-800'
+                      : 'text-warm-400'
+                  }`}>
+                    {day}
+                  </span>
+
+                  {/* Activity dots */}
+                  {(hasInteractions || hasBirthdays) && !isSelected && (
+                    <div className="flex gap-0.5 mt-0.5">
+                      {hasBirthdays && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                      )}
+                      {hasInteractions && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand" />
+                      )}
+                      {dayInteractions.length > 2 && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand/50" />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Selected indicator dots */}
+                  {isSelected && (hasInteractions || hasBirthdays) && (
+                    <div className="flex gap-0.5 mt-0.5">
+                      {Array.from({ length: Math.min(dayInteractions.length + dayBirthdays.length, 3) }, (_, idx) => (
+                        <div key={idx} className="w-1.5 h-1.5 rounded-full bg-white/70" />
+                      ))}
+                    </div>
+                  )}
+                </button>
               );
             })}
           </div>
 
-          <div className="grid grid-cols-7 gap-1.5 mb-1.5">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-xs font-semibold text-warm-400 py-2">{day}</div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-1.5">
-            {renderCalendarDays()}
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-5 px-5 py-3 border-t border-warm-100 bg-warm-50/50">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-brand" />
+              <span className="text-[11px] text-warm-500">Interaction</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-green-400" />
+              <span className="text-[11px] text-warm-500">Birthday</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-5 rounded bg-brand/10 ring-1 ring-brand/30" />
+              <span className="text-[11px] text-warm-500">Today</span>
+            </div>
           </div>
         </motion.div>
 
-        {selectedDate && (selectedDayInteractions.length > 0 || selectedDayBirthdays.length > 0) && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 mb-6"
-          >
-            <h3 className="font-semibold text-warm-800 mb-4">
-              {monthNames[month]} {parseInt(selectedDate.split('-')[2])}
-            </h3>
+        {/* Selected day detail panel */}
+        <AnimatePresence>
+          {selectedDate && (selectedDayInteractions.length > 0 || selectedDayBirthdays.length > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: -8, height: 0 }}
+              className="overflow-hidden mb-5"
+            >
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-warm-200/60 shadow-sm overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-3.5 border-b border-warm-100">
+                  <div className="flex items-center gap-2">
+                    <Calendar size={15} className="text-brand" />
+                    <h3 className="font-bold text-warm-800 text-sm">
+                      {MONTH_NAMES[month]} {parseInt(selectedDate.split('-')[2])}
+                    </h3>
+                    <span className="text-xs text-warm-400">
+                      {selectedDayInteractions.length + selectedDayBirthdays.length} {selectedDayInteractions.length + selectedDayBirthdays.length === 1 ? 'event' : 'events'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setSelectedDate(null)}
+                    className="w-6 h-6 rounded-lg hover:bg-warm-100 flex items-center justify-center text-warm-400"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
 
-            {selectedDayBirthdays.length > 0 && (
-              <div className="mb-4">
+                {/* Birthdays */}
                 {selectedDayBirthdays.map((bday, idx) => (
                   <div
-                    key={idx}
+                    key={`bday-${idx}`}
                     onClick={() => handleContactClick(bday.contact)}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-green-50 cursor-pointer hover:bg-green-100 transition-colors mb-2"
+                    className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-warm-50 transition-colors border-b border-warm-50 last:border-0"
                   >
-                    <span className="text-lg">&#127874;</span>
-                    <span className="font-medium text-sm text-green-700">{bday.contact.name}'s birthday</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="space-y-2">
-              {selectedDayInteractions.map((interaction, idx) => {
-                const color = getRelationshipColor(interaction.contact.relationship_type);
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => handleContactClick(interaction.contact)}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-warm-50 cursor-pointer hover:bg-warm-100 transition-colors"
-                  >
-                    <div
-                      className="w-8 h-8 rounded-lg text-white text-xs flex items-center justify-center font-bold flex-shrink-0"
-                      style={{ background: color.hex }}
-                    >
-                      {getRolodexInitials(interaction.contact.name)[0]}
+                    <div className="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <Cake size={16} className="text-green-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-warm-800">{interaction.contact.name}</div>
-                      {interaction.summary && (
-                        <p className="text-xs text-warm-500 truncate">{interaction.summary}</p>
-                      )}
+                      <div className="font-semibold text-sm text-warm-800">{bday.contact.name}</div>
+                      <div className="text-xs text-green-600 font-medium">Birthday</div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
+                ))}
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-3 gap-4"
-        >
-          {[
-            { value: Object.keys(interactionsByDate).length, label: 'Active Days' },
-            { value: Object.values(interactionsByDate).flat().length, label: 'Interactions' },
-            { value: birthdaysThisMonth.length, label: 'Birthdays' },
-          ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-5 text-center">
-              <div className="text-2xl font-bold text-brand mb-1">{stat.value}</div>
-              <div className="text-xs text-warm-500 font-medium">{stat.label}</div>
-            </div>
-          ))}
-        </motion.div>
+                {/* Interactions */}
+                {selectedDayInteractions.map((interaction, idx) => {
+                  const color = getRelationshipColor(interaction.contact.relationship_type);
+                  return (
+                    <div
+                      key={`int-${idx}`}
+                      onClick={() => handleContactClick(interaction.contact)}
+                      className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-warm-50 transition-colors border-b border-warm-50 last:border-0"
+                    >
+                      <div
+                        className="w-9 h-9 rounded-xl text-white text-sm flex items-center justify-center font-bold flex-shrink-0"
+                        style={{ background: color.hex }}
+                      >
+                        {interaction.contact.name.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm text-warm-800">{interaction.contact.name}</div>
+                        {interaction.summary && (
+                          <p className="text-xs text-warm-500 truncate">{interaction.summary}</p>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-warm-400 font-medium flex-shrink-0 capitalize">{interaction.contact.relationship_type}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

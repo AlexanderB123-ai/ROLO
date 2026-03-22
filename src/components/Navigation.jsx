@@ -1,10 +1,10 @@
 import { useContext, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Users, Lightbulb, Calendar, Sparkles } from 'lucide-react';
+import { Home, Users, Lightbulb, Calendar, Sparkles, LogOut } from 'lucide-react';
 import { ContactsContext } from '../context/ContactsContext';
 
 export default function Navigation() {
-  const { currentView, setCurrentView } = useContext(ContactsContext);
+  const { currentView, setCurrentView, signOut } = useContext(ContactsContext);
   const [indicatorStyle, setIndicatorStyle] = useState({ width: 0, left: 0 });
   const tabRefs = useRef([]);
 
@@ -30,8 +30,8 @@ export default function Navigation() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50" role="navigation" aria-label="Main navigation">
       <div className="mx-4 mt-4">
-        <div className="max-w-2xl mx-auto rounded-2xl shadow-lg shadow-warm-900/8 px-1.5 py-1.5 bg-white/50 backdrop-blur-xl border border-white/60" style={{ WebkitBackdropFilter: 'blur(24px)' }}>
-          <div className="relative flex items-center">
+        <div className="max-w-2xl mx-auto rounded-2xl shadow-lg shadow-warm-900/8 px-1.5 py-1.5 bg-white/50 backdrop-blur-xl border border-white/60 flex items-center gap-1.5" style={{ WebkitBackdropFilter: 'blur(24px)' }}>
+          <div className="relative flex items-center flex-1">
             {/* Sliding indicator */}
             {activeIndex >= 0 && (
               <motion.div
@@ -74,6 +74,15 @@ export default function Navigation() {
               );
             })}
           </div>
+
+          {/* Sign out button */}
+          <button
+            onClick={signOut}
+            aria-label="Sign out"
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-warm-400 hover:text-warm-600 hover:bg-warm-100 transition-colors flex-shrink-0"
+          >
+            <LogOut size={15} />
+          </button>
         </div>
       </div>
     </nav>
