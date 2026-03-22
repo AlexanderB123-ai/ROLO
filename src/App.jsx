@@ -9,6 +9,7 @@ import VoiceInput from './components/VoiceInput';
 import ContactProfile from './components/ContactProfile';
 import OutreachSuggestions from './components/OutreachSuggestions';
 import Suggestions from './components/Suggestions';
+import NetworkGraph from './components/NetworkGraph';
 import { FlickeringGrid } from './components/ui/FlickeringGrid';
 
 const pageTransition = {
@@ -25,11 +26,12 @@ const views = {
   voice: VoiceInput,
   profile: ContactProfile,
   outreach: OutreachSuggestions,
+  network: NetworkGraph,
 };
 
 function AppContent() {
   const { currentView } = useContext(ContactsContext);
-  const showNavigation = ['home', 'dashboard', 'calendar', 'suggestions'].includes(currentView);
+  const showNavigation = ['home', 'dashboard', 'calendar', 'suggestions', 'network'].includes(currentView);
   const ViewComponent = views[currentView] || HomePage;
 
   return (

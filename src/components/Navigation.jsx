@@ -1,6 +1,6 @@
 import { useContext, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Users, Lightbulb, Calendar } from 'lucide-react';
+import { Home, Users, Lightbulb, Calendar, Share2 } from 'lucide-react';
 import { ContactsContext } from '../context/ContactsContext';
 
 export default function Navigation() {
@@ -12,7 +12,8 @@ export default function Navigation() {
     { id: 'home', label: 'Home', icon: Home },
     { id: 'dashboard', label: 'Contacts', icon: Users },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'suggestions', label: 'Suggestions', icon: Lightbulb }
+    { id: 'suggestions', label: 'Suggestions', icon: Lightbulb },
+    { id: 'network', label: 'Network', icon: Share2 }
   ];
 
   const activeIndex = tabs.findIndex(tab => tab.id === currentView);
