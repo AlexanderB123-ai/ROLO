@@ -30,7 +30,7 @@ export default function Navigation() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50" role="navigation" aria-label="Main navigation">
       <div className="mx-4 mt-4">
-        <div className="max-w-2xl mx-auto glass-strong rounded-2xl shadow-lg shadow-warm-900/5 px-1.5 py-1.5">
+        <div className="max-w-2xl mx-auto rounded-2xl shadow-lg shadow-warm-900/8 px-1.5 py-1.5 bg-white/50 backdrop-blur-xl border border-white/60" style={{ WebkitBackdropFilter: 'blur(24px)' }}>
           <div className="relative flex items-center">
             {/* Sliding indicator */}
             {activeIndex >= 0 && (

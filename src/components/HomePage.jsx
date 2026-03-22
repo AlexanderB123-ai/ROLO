@@ -34,7 +34,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* ===== HERO ===== */}
-      <section className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-6">
+      <section className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-6 pt-20">
         {/* Decorative glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-brand/[0.06] blur-[120px] pointer-events-none" />
 
@@ -43,13 +43,10 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center justify-center gap-3 mb-8"
+            transition={{ duration: 0.6 }}
+            className="mb-6"
           >
-            <div className="w-12 h-12 rounded-2xl gradient-brand flex items-center justify-center shadow-lg shadow-brand/25">
-              <Heart size={22} className="text-white" />
-            </div>
-            <span className="text-4xl md:text-5xl font-extrabold gradient-text tracking-tight">Rolo</span>
+            <span className="text-7xl md:text-8xl lg:text-9xl font-extrabold gradient-text tracking-tight">Rolo</span>
           </motion.div>
 
           {/* Headline */}
@@ -57,10 +54,10 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-warm-900 mb-6 text-balance leading-[0.92]"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-warm-700 mb-6 text-balance leading-tight"
           >
             Stay connected
-            <span className="block gradient-text mt-1">with everyone.</span>
+            <span className="block text-warm-900 font-extrabold">with everyone.</span>
           </motion.h1>
 
           {/* Sub-headline */}
