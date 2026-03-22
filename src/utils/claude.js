@@ -1,8 +1,16 @@
 const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 const API_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-sonnet-4-5-20250929';
+const MODEL = 'claude-sonnet-4-6-20250219';
+const TIMEOUT_MS = 15000;
 
 async function callClaude(systemPrompt, userMessage, maxTokens = 1024) {
+  if (!API_KEY) {
+    throw new Error('No API key configured. Set VITE_ANTHROPIC_API_KEY in .env');
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -17,8 +25,11 @@ async function callClaude(systemPrompt, userMessage, maxTokens = 1024) {
         max_tokens: maxTokens,
         messages: [{ role: 'user', content: userMessage }],
         system: systemPrompt
-      })
+      }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -28,6 +39,10 @@ async function callClaude(systemPrompt, userMessage, maxTokens = 1024) {
     const data = await response.json();
     return data.content[0].text;
   } catch (error) {
+    clearTimeout(timeout);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out after 15 seconds');
+    }
     console.error('Claude API error:', error);
     throw error;
   }
@@ -54,16 +69,10 @@ For each person, extract:
 
 Return ONLY valid JSON. No markdown, no explanation. Either a single object or an array of objects.`;
 
-  try {
-    const response = await callClaude(systemPrompt, transcript, 1024);
-    // Remove any markdown code blocks if present
-    const cleanedResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const parsed = JSON.parse(cleanedResponse);
-    return Array.isArray(parsed) ? parsed : [parsed];
-  } catch (error) {
-    console.error('Error extracting profile:', error);
-    throw error;
-  }
+  const response = await callClaude(systemPrompt, transcript, 1024);
+  const cleanedResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  const parsed = JSON.parse(cleanedResponse);
+  return Array.isArray(parsed) ? parsed : [parsed];
 }
 
 export async function generateOutreachSuggestions(contact, daysSinceLastContact) {
@@ -77,15 +86,10 @@ Rules:
 
 Return ONLY valid JSON array: [{ type: "text"|"call"|"hangout", suggestion: string, draft_message: string, reasoning: string }]`;
 
-  try {
-    const userMessage = `Contact profile: ${JSON.stringify(contact)}\nDays since last interaction: ${daysSinceLastContact}`;
-    const response = await callClaude(systemPrompt, userMessage, 1024);
-    const cleanedResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(cleanedResponse);
-  } catch (error) {
-    console.error('Error generating outreach suggestions:', error);
-    throw error;
-  }
+  const userMessage = `Contact profile: ${JSON.stringify(contact)}\nDays since last interaction: ${daysSinceLastContact}`;
+  const response = await callClaude(systemPrompt, userMessage, 1024);
+  const cleanedResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  return JSON.parse(cleanedResponse);
 }
 
 export async function generateBirthdayMessage(contact) {
@@ -93,13 +97,8 @@ export async function generateBirthdayMessage(contact) {
 
 Return ONLY valid JSON: { message: string }`;
 
-  try {
-    const userMessage = `Contact profile: ${JSON.stringify(contact)}`;
-    const response = await callClaude(systemPrompt, userMessage, 512);
-    const cleanedResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(cleanedResponse);
-  } catch (error) {
-    console.error('Error generating birthday message:', error);
-    throw error;
-  }
+  const userMessage = `Contact profile: ${JSON.stringify(contact)}`;
+  const response = await callClaude(systemPrompt, userMessage, 512);
+  const cleanedResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  return JSON.parse(cleanedResponse);
 }

@@ -1,6 +1,6 @@
 import { useContext, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Users, Lightbulb, Calendar, Share2 } from 'lucide-react';
+import { Users, Lightbulb, Calendar, Sparkles } from 'lucide-react';
 import { ContactsContext } from '../context/ContactsContext';
 
 export default function Navigation() {
@@ -9,11 +9,10 @@ export default function Navigation() {
   const tabRefs = useRef([]);
 
   const tabs = [
-    { id: 'home', label: 'Home', icon: Home },
     { id: 'dashboard', label: 'Contacts', icon: Users },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'suggestions', label: 'Suggestions', icon: Lightbulb },
-    { id: 'network', label: 'Network', icon: Share2 }
+    { id: 'ai', label: 'Ask AI', icon: Sparkles }
   ];
 
   const activeIndex = tabs.findIndex(tab => tab.id === currentView);
@@ -28,7 +27,7 @@ export default function Navigation() {
   }, [activeIndex]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
+    <nav className="fixed top-0 left-0 right-0 z-50" role="navigation" aria-label="Main navigation">
       <div className="mx-4 mt-4">
         <div className="max-w-2xl mx-auto glass-strong rounded-2xl shadow-lg shadow-warm-900/5 px-2 py-2">
           <div className="relative flex items-center">
@@ -59,13 +58,15 @@ export default function Navigation() {
                   key={tab.id}
                   ref={(el) => (tabRefs.current[index] = el)}
                   onClick={() => setCurrentView(tab.id)}
+                  aria-label={tab.label}
+                  aria-current={isActive ? 'page' : undefined}
                   className="relative flex-1 px-4 py-2.5 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center gap-2 z-10"
                   style={{
                     color: isActive ? '#FFFFFF' : '#9C8B7A',
                   }}
                 >
                   <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
-                  <span className="text-sm hidden sm:inline">{tab.label}</span>
+                  <span className="text-sm">{tab.label}</span>
                 </button>
               );
             })}

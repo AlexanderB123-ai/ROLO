@@ -38,7 +38,6 @@ export default function Dashboard() {
     if (contactList.length === 0) return null;
     return (
       <motion.div variants={fadeUp} className="mb-8">
-        {/* Section header */}
         <div className="flex items-center gap-3 mb-5">
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accentColor}`}>
             {icon}
@@ -50,7 +49,6 @@ export default function Dashboard() {
           <div className="h-px flex-1 bg-warm-200/60" />
         </div>
 
-        {/* Cards */}
         <div className={`rounded-2xl p-4 ${bgTint}`}>
           <div className={`grid ${gridCols} gap-4`}>
             {contactList.map(contact => {
@@ -71,7 +69,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -82,7 +79,6 @@ export default function Dashboard() {
           <p className="text-warm-500">The closer they are, the more they matter</p>
         </motion.div>
 
-        {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -104,7 +100,6 @@ export default function Dashboard() {
           ))}
         </motion.div>
 
-        {/* Color legend */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -127,7 +122,6 @@ export default function Dashboard() {
           })}
         </motion.div>
 
-        {/* Upcoming birthdays */}
         {upcomingBirthdays.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -170,7 +164,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Drifting alert */}
         {driftingContacts.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -196,7 +189,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Contact rings */}
         <motion.div variants={stagger} initial="initial" animate="animate">
           {renderRing(
             'Inner Circle', <Heart size={14} className="text-white" />,
@@ -218,7 +210,6 @@ export default function Dashboard() {
           )}
         </motion.div>
 
-        {/* Empty state */}
         {contacts.length === 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -242,14 +233,14 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* FAB */}
+      {/* FAB with pulse animation */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.5 }}
         onClick={() => setCurrentView('voice')}
-        className="fixed bottom-8 right-8 w-16 h-16 rounded-2xl gradient-brand text-white shadow-lg shadow-brand/30 flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:shadow-brand/40 hover:scale-105 active:scale-95 z-50"
-        title="Add contact"
+        aria-label="Add contact by voice"
+        className="fixed bottom-8 right-8 w-16 h-16 rounded-2xl gradient-brand text-white shadow-lg shadow-brand/30 flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:shadow-brand/40 hover:scale-105 active:scale-95 z-50 animate-mic-pulse"
       >
         <Mic size={24} />
       </motion.button>

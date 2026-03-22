@@ -4,7 +4,7 @@
  */
 
 export const calculateDrift = (lastInteractionDate) => {
-  if (!lastInteractionDate) return 999;
+  if (!lastInteractionDate) return 0;
   const now = new Date();
   const last = new Date(lastInteractionDate);
   return Math.floor((now - last) / (1000 * 60 * 60 * 24));

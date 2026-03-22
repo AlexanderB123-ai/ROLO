@@ -1,31 +1,11 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import { generateOutreachSuggestions } from '../utils/claude';
+import { fallbackOutreachSuggestions } from '../utils/fallbackData';
 import { formatRolodexName } from '../utils/nameFormatter';
 import { calculateDrift, getRelationshipColor } from '../utils/drift';
-import { ArrowLeft, Copy, Check, MessageCircle, Phone, Coffee, Loader2, CheckCircle } from 'lucide-react';
-
-const getFallbackSuggestions = (contact, drift) => [
-  {
-    type: 'text',
-    suggestion: 'Send a quick text to check in',
-    draft_message: `Hey ${contact.name.split(' ')[0]}! Been thinking about you. How have you been?`,
-    reasoning: 'Simple and friendly opening'
-  },
-  {
-    type: 'call',
-    suggestion: 'Give them a call to catch up properly',
-    draft_message: 'Call them when you have 15-20 minutes free',
-    reasoning: 'Voice connection is more personal'
-  },
-  {
-    type: 'hangout',
-    suggestion: 'Suggest meeting up in person',
-    draft_message: `Hey! Want to grab coffee/lunch sometime this week? Would be great to catch up`,
-    reasoning: `It's been ${drift} days - time to reconnect in person`
-  }
-];
+import { ArrowLeft, Copy, Check, MessageCircle, Phone, Coffee, Loader2, CheckCircle, RefreshCw } from 'lucide-react';
 
 const typeConfig = {
   text: { icon: MessageCircle, label: 'Text', color: 'bg-blue-50 text-blue-600 border-blue-100' },
@@ -37,27 +17,31 @@ export default function OutreachSuggestions() {
   const { selectedContact, setCurrentView, setSelectedContact, updateContact } = useContext(ContactsContext);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [usedFallback, setUsedFallback] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const isLoadingRef = useRef(false);
 
   useEffect(() => {
     if (selectedContact) loadSuggestions();
   }, [selectedContact]);
 
   const loadSuggestions = async () => {
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setIsLoading(true);
-    setError(null);
+    setUsedFallback(false);
+
     try {
       const drift = calculateDrift(selectedContact.last_interaction?.approximate_date);
       const generated = await generateOutreachSuggestions(selectedContact, drift);
       setSuggestions(generated);
     } catch (err) {
-      console.error('Error generating suggestions:', err);
-      setError(err.message);
-      const drift = calculateDrift(selectedContact.last_interaction?.approximate_date);
-      setSuggestions(getFallbackSuggestions(selectedContact, drift));
+      console.warn('API failed, using fallback suggestions:', err);
+      setSuggestions(fallbackOutreachSuggestions);
+      setUsedFallback(true);
     } finally {
       setIsLoading(false);
+      isLoadingRef.current = false;
     }
   };
 
@@ -93,6 +77,7 @@ export default function OutreachSuggestions() {
         {/* Back */}
         <button
           onClick={handleBack}
+          aria-label="Back to profile"
           className="mb-6 inline-flex items-center gap-2 text-warm-500 hover:text-warm-700 font-medium transition-colors text-sm"
         >
           <ArrowLeft size={16} />
@@ -135,8 +120,8 @@ export default function OutreachSuggestions() {
           </motion.div>
         )}
 
-        {/* Error */}
-        {error && !isLoading && (
+        {/* Fallback notice */}
+        {usedFallback && !isLoading && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -162,7 +147,6 @@ export default function OutreachSuggestions() {
                   transition={{ delay: index * 0.1 }}
                   className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 hover:shadow-md transition-all"
                 >
-                  {/* Type badge */}
                   <div className="flex items-center gap-2 mb-4">
                     <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.color}`}>
                       <Icon size={13} />
@@ -170,23 +154,20 @@ export default function OutreachSuggestions() {
                     </div>
                   </div>
 
-                  {/* Suggestion */}
                   <h3 className="font-semibold text-warm-800 mb-3">{suggestion.suggestion}</h3>
 
-                  {/* Draft message */}
                   <div className="bg-warm-50 rounded-xl p-4 mb-3">
                     <p className="text-xs font-medium text-warm-400 uppercase tracking-wider mb-2">Draft</p>
                     <p className="text-warm-700 text-sm leading-relaxed">{suggestion.draft_message}</p>
                   </div>
 
-                  {/* Reasoning */}
                   {suggestion.reasoning && (
                     <p className="text-xs text-warm-400 mb-4 italic">{suggestion.reasoning}</p>
                   )}
 
-                  {/* Copy button */}
                   <button
                     onClick={() => handleCopyMessage(suggestion.draft_message, index)}
+                    aria-label={copiedIndex === index ? 'Copied' : 'Copy message'}
                     className={`w-full py-2.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
                       copiedIndex === index
                         ? 'bg-green-50 text-green-600 border border-green-200'
@@ -219,6 +200,15 @@ export default function OutreachSuggestions() {
             >
               <CheckCircle size={18} />
               I Reached Out
+            </button>
+            <button
+              onClick={loadSuggestions}
+              disabled={isLoadingRef.current}
+              aria-label="Generate new suggestions"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-medium text-warm-600 bg-warm-100 hover:bg-warm-200 transition-colors text-sm disabled:opacity-50"
+            >
+              <RefreshCw size={15} />
+              Regenerate
             </button>
             <button
               onClick={handleBack}

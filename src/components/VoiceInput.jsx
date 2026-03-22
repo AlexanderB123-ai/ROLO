@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import { extractProfile } from '../utils/claude';
+import { fallbackProfileExtraction } from '../utils/fallbackData';
 import { formatRolodexName } from '../utils/nameFormatter';
 import { getRelationshipColor } from '../utils/drift';
 import { Mic, Square, ArrowLeft, Loader2, CheckCircle2, Sparkles } from 'lucide-react';
@@ -13,6 +14,7 @@ export default function VoiceInput() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [createdProfiles, setCreatedProfiles] = useState([]);
   const [error, setError] = useState(null);
+  const [usedFallback, setUsedFallback] = useState(false);
   const recognitionRef = useRef(null);
 
   useEffect(() => {
@@ -52,6 +54,7 @@ export default function VoiceInput() {
     setTranscript('');
     setError(null);
     setCreatedProfiles([]);
+    setUsedFallback(false);
     try {
       recognitionRef.current?.start();
       setIsRecording(true);
@@ -74,7 +77,15 @@ export default function VoiceInput() {
       setIsProcessing(true);
       setError(null);
 
-      const profiles = await extractProfile(transcript);
+      let profiles;
+      try {
+        profiles = await extractProfile(transcript);
+      } catch (apiErr) {
+        console.warn('API failed, using fallback data:', apiErr);
+        profiles = fallbackProfileExtraction;
+        setUsedFallback(true);
+      }
+
       setIsProcessing(false);
       setCreatedProfiles(profiles);
       addContacts(profiles);
@@ -82,8 +93,13 @@ export default function VoiceInput() {
       setTimeout(() => setCurrentView('dashboard'), 3000);
     } catch (err) {
       console.error('Error processing transcript:', err);
-      setError('Error creating profile. Please try again or check your API key.');
+      // Even on unexpected errors, use fallback so demo never breaks
+      const profiles = fallbackProfileExtraction;
       setIsProcessing(false);
+      setCreatedProfiles(profiles);
+      setUsedFallback(true);
+      addContacts(profiles);
+      setTimeout(() => setCurrentView('dashboard'), 3000);
     }
   };
 
@@ -109,6 +125,7 @@ export default function VoiceInput() {
         {/* Back */}
         <button
           onClick={handleCancel}
+          aria-label={createdProfiles.length > 0 ? 'Go to dashboard' : 'Cancel recording'}
           className="mb-8 inline-flex items-center gap-2 text-warm-500 hover:text-warm-700 font-medium transition-colors text-sm"
         >
           <ArrowLeft size={16} />
@@ -132,6 +149,18 @@ export default function VoiceInput() {
               : 'Speak naturally about anyone you want to remember'}
           </p>
         </motion.div>
+
+        {/* Fallback notice */}
+        {usedFallback && createdProfiles.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6"
+          >
+            <p className="text-sm text-amber-700 font-medium">Demo mode — used sample profile data</p>
+            <p className="text-xs text-amber-500 mt-1">AI was unavailable, so a sample contact was added instead.</p>
+          </motion.div>
+        )}
 
         {/* Success state */}
         <AnimatePresence>
@@ -223,6 +252,7 @@ export default function VoiceInput() {
                   whileTap={{ scale: 0.95 }}
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={error && error.includes('not supported')}
+                  aria-label={isRecording ? 'Stop recording' : 'Start recording'}
                   className={`relative w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
                     isRecording
                       ? 'bg-red-500 shadow-2xl animate-recording-glow'
@@ -306,9 +336,6 @@ export default function VoiceInput() {
               className="bg-red-50 border border-red-100 rounded-2xl p-4 mb-6"
             >
               <p className="font-medium text-red-700 text-sm">{error}</p>
-              {error.includes('API key') && (
-                <p className="text-xs text-red-500 mt-1">Check your .env file for VITE_ANTHROPIC_API_KEY</p>
-              )}
             </motion.div>
           )}
         </AnimatePresence>

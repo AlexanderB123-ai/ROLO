@@ -5,8 +5,26 @@ import { formatRolodexName, getRolodexInitials } from '../utils/nameFormatter';
 import { getRelationshipColor } from '../utils/drift';
 import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 
+// Normalize contacts: if they have last_interaction but no interactions[], create one
+function normalizeInteractions(contacts) {
+  return contacts.map(contact => {
+    if (contact.interactions?.length > 0) return contact;
+    if (contact.last_interaction?.approximate_date) {
+      return {
+        ...contact,
+        interactions: [{
+          date: contact.last_interaction.approximate_date.split('T')[0],
+          summary: contact.last_interaction.description || 'Interaction logged'
+        }]
+      };
+    }
+    return contact;
+  });
+}
+
 export default function InteractionCalendar() {
-  const { contacts, setCurrentView, setSelectedContact } = useContext(ContactsContext);
+  const { contacts: rawContacts, setCurrentView, setSelectedContact } = useContext(ContactsContext);
+  const contacts = useMemo(() => normalizeInteractions(rawContacts), [rawContacts]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
@@ -93,6 +111,7 @@ export default function InteractionCalendar() {
         <div key={day} className="aspect-square">
           <button
             onClick={() => handleDateClick(day)}
+            aria-label={`${monthNames[month]} ${day}${hasActivity ? ', has activity' : ''}`}
             className={`w-full h-full rounded-xl transition-all duration-200 p-1.5 flex flex-col text-left ${
               isSelected ? 'ring-2 ring-brand shadow-md bg-white' :
               isCurrentDay ? 'ring-2 ring-brand/30 bg-white shadow-sm' :
@@ -109,7 +128,7 @@ export default function InteractionCalendar() {
             {dayBirthdays.length > 0 && (
               <div className="flex gap-0.5 mb-0.5">
                 {dayBirthdays.map((_, idx) => (
-                  <span key={idx} className="text-[10px] leading-none">🎂</span>
+                  <span key={idx} className="text-[10px] leading-none">&#127874;</span>
                 ))}
               </div>
             )}
@@ -151,7 +170,6 @@ export default function InteractionCalendar() {
   return (
     <div className="min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -161,7 +179,6 @@ export default function InteractionCalendar() {
           <p className="text-warm-500">Track every meaningful connection</p>
         </motion.div>
 
-        {/* Streak */}
         {interactionStreak > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -175,35 +192,27 @@ export default function InteractionCalendar() {
           </motion.div>
         )}
 
-        {/* Calendar */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="bg-white rounded-2xl border border-warm-200/60 shadow-sm p-6 mb-6"
         >
-          {/* Controls */}
           <div className="flex items-center justify-between mb-6">
-            <button onClick={goToPreviousMonth} className="p-2 rounded-xl hover:bg-warm-100 transition-colors text-warm-600">
+            <button onClick={goToPreviousMonth} aria-label="Previous month" className="p-2 rounded-xl hover:bg-warm-100 transition-colors text-warm-600">
               <ChevronLeft size={20} />
             </button>
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-warm-800">
-                {monthNames[month]} {year}
-              </h2>
-              <button
-                onClick={goToToday}
-                className="px-3 py-1 rounded-lg text-xs font-semibold text-brand bg-brand-light hover:bg-brand/15 transition-colors"
-              >
+              <h2 className="text-xl font-bold text-warm-800">{monthNames[month]} {year}</h2>
+              <button onClick={goToToday} className="px-3 py-1 rounded-lg text-xs font-semibold text-brand bg-brand-light hover:bg-brand/15 transition-colors">
                 Today
               </button>
             </div>
-            <button onClick={goToNextMonth} className="p-2 rounded-xl hover:bg-warm-100 transition-colors text-warm-600">
+            <button onClick={goToNextMonth} aria-label="Next month" className="p-2 rounded-xl hover:bg-warm-100 transition-colors text-warm-600">
               <ChevronRight size={20} />
             </button>
           </div>
 
-          {/* Legend */}
           <div className="flex flex-wrap gap-4 justify-center text-xs mb-5">
             {[
               { type: 'friend', label: 'Friends' },
@@ -221,22 +230,17 @@ export default function InteractionCalendar() {
             })}
           </div>
 
-          {/* Day headers */}
           <div className="grid grid-cols-7 gap-1.5 mb-1.5">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-xs font-semibold text-warm-400 py-2">
-                {day}
-              </div>
+              <div key={day} className="text-center text-xs font-semibold text-warm-400 py-2">{day}</div>
             ))}
           </div>
 
-          {/* Calendar grid */}
           <div className="grid grid-cols-7 gap-1.5">
             {renderCalendarDays()}
           </div>
         </motion.div>
 
-        {/* Selected day details */}
         {selectedDate && (selectedDayInteractions.length > 0 || selectedDayBirthdays.length > 0) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -255,7 +259,7 @@ export default function InteractionCalendar() {
                     onClick={() => handleContactClick(bday.contact)}
                     className="flex items-center gap-3 p-3 rounded-xl bg-green-50 cursor-pointer hover:bg-green-100 transition-colors mb-2"
                   >
-                    <span className="text-lg">🎂</span>
+                    <span className="text-lg">&#127874;</span>
                     <span className="font-medium text-sm text-green-700">{formatRolodexName(bday.contact.name)}'s birthday</span>
                   </div>
                 ))}
@@ -290,7 +294,6 @@ export default function InteractionCalendar() {
           </motion.div>
         )}
 
-        {/* Stats */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

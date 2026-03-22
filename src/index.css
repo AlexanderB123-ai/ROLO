@@ -154,6 +154,15 @@
   animation: recording-glow 2s ease-in-out infinite;
 }
 
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 10px 25px -5px rgba(221, 87, 28, 0.3); }
+  50% { box-shadow: 0 10px 40px -5px rgba(221, 87, 28, 0.5), 0 0 0 8px rgba(221, 87, 28, 0.1); }
+}
+
+.animate-mic-pulse {
+  animation: mic-pulse 2.5s ease-in-out infinite;
+}
+
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }

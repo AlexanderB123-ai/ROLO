@@ -6,14 +6,13 @@ export const ContactsContext = createContext();
 
 export function ContactsProvider({ children }) {
   const [contacts, setContacts] = useState([]);
-  const [currentView, setCurrentView] = useState('home'); // 'home' | 'dashboard' | 'suggestions' | 'voice' | 'profile' | 'outreach'
+  const [currentView, setCurrentView] = useState('dashboard');
   const [selectedContact, setSelectedContact] = useState(null);
 
   // Load contacts from localStorage on mount
   useEffect(() => {
     const loaded = loadContacts();
     if (loaded.length === 0) {
-      // If no contacts exist, load seed data for demo
       const seedData = loadSeedData();
       setContacts(seedData);
       saveContacts(seedData);
