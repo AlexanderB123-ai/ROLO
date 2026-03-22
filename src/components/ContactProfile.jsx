@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { ContactsContext } from '../context/ContactsContext';
+import { formatRolodexName, getRolodexInitials } from '../utils/nameFormatter';
 
 // Helper function to calculate days since last interaction
 const calculateDrift = (lastInteractionDate) => {
@@ -37,16 +38,11 @@ export default function ContactProfile() {
 
   // Get initials for avatar
   const getInitials = (name) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return getRolodexInitials(name);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 py-8 px-4">
+    <div className="min-h-screen py-8 px-4" style={{background: 'linear-gradient(to bottom right, #D6CFC7, #F5F1ED)'}}>
       <div className="max-w-3xl mx-auto">
         {/* Back Button */}
         <button
@@ -60,23 +56,23 @@ export default function ContactProfile() {
         </button>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100" style={{boxShadow: '0 8px 32px rgba(221, 87, 28, 0.12)'}}>
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center">
               {/* Avatar */}
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-2xl mr-4">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center text-white font-bold text-2xl mr-4" style={{background: 'linear-gradient(135deg, #DD571C, #C44915)'}}>
                 {getInitials(contact.name)}
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">{contact.name}</h1>
-                <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">{formatRolodexName(contact.name)}</h1>
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium" style={{background: '#F5F1ED', color: '#DD571C'}}>
                   {contact.relationship_type}
                 </span>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-bold text-amber-600">
+              <div className="text-4xl font-bold" style={{color: '#DD571C'}}>
                 {contact.importance}
                 <span className="text-sm text-gray-500">/5</span>
               </div>
@@ -148,7 +144,8 @@ export default function ContactProfile() {
                 {contact.interests.map((interest, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    className="px-3 py-1 rounded-full text-sm"
+                    style={{background: '#F5F1ED', color: '#DD571C'}}
                   >
                     {interest}
                   </span>
@@ -164,7 +161,7 @@ export default function ContactProfile() {
               <ul className="space-y-2">
                 {contact.open_threads.map((thread, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-amber-500 mr-2">•</span>
+                    <span className="mr-2" style={{color: '#DD571C'}}>•</span>
                     <span className="text-gray-800">{thread}</span>
                   </li>
                 ))}
@@ -221,15 +218,16 @@ export default function ContactProfile() {
           <div className="flex gap-4">
             <button
               onClick={handleReachOut}
-              className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg"
+              className="flex-1 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105"
+              style={{background: 'linear-gradient(135deg, #DD571C, #C44915)', boxShadow: '0 4px 16px rgba(221, 87, 28, 0.3)'}}
             >
-              Reach Out
+              💬 Reach Out
             </button>
             <button
               onClick={handleBack}
-              className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+              className="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-all hover:bg-gray-100 rounded-xl"
             >
-              Back
+              ← Back
             </button>
           </div>
         </div>

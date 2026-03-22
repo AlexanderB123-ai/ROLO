@@ -1,63 +1,65 @@
+import { formatRolodexName, getRolodexInitials } from '../utils/nameFormatter';
+
 export default function ContactCard({ contact, onClick, drift }) {
   // Get initials for avatar
   const getInitials = (name) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return getRolodexInitials(name);
   };
 
-  // Get color based on importance
-  const getColorClass = (importance) => {
-    if (importance >= 4) return 'bg-gradient-to-br from-amber-400 to-orange-500';
-    if (importance === 3) return 'bg-gradient-to-br from-orange-300 to-orange-400';
-    return 'bg-gradient-to-br from-gray-300 to-gray-400';
+  // Get gradient color based on importance
+  const getGradientStyle = (importance) => {
+    if (importance >= 4) return {background: 'linear-gradient(135deg, #DD571C, #C44915)'};
+    if (importance === 3) return {background: 'linear-gradient(135deg, #DD571C, #C44915)'};
+    return {background: 'linear-gradient(135deg, #999, #666)'};
   };
 
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer p-4 transform hover:scale-105"
+      className="group bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer p-5 transform hover:scale-105 hover:-translate-y-2 border border-white/50"
+      style={{boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'}}
     >
-      {/* Avatar */}
-      <div className="flex justify-center mb-3">
-        <div className={`w-16 h-16 rounded-full ${getColorClass(contact.importance)} flex items-center justify-center text-white font-bold text-xl`}>
-          {getInitials(contact.name)}
+      {/* Avatar with gradient border */}
+      <div className="flex justify-center mb-4">
+        <div className="p-[3px] rounded-full shadow-lg group-hover:shadow-xl transition-all group-hover:scale-110 duration-300" style={{...getGradientStyle(contact.importance), boxShadow: '0 4px 16px rgba(221, 87, 28, 0.3)'}}>
+          <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center">
+            <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-inner" style={getGradientStyle(contact.importance)}>
+              {getInitials(contact.name)}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Name */}
-      <h3 className="text-center font-semibold text-gray-800 mb-1 truncate">
-        {contact.name}
+      <h3 className="text-center font-bold text-gray-800 mb-2 truncate transition-all group-hover:scale-105" style={{color: contact.importance >= 3 ? '#DD571C' : '#666'}}>
+        {formatRolodexName(contact.name)}
       </h3>
 
-      {/* Relationship Badge */}
-      <div className="text-center">
-        <span className="inline-block px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium">
+      {/* Relationship Badge with gradient */}
+      <div className="text-center mb-2">
+        <span className="inline-block px-3 py-1.5 text-white rounded-full text-xs font-semibold shadow-sm transition-all group-hover:scale-105" style={{...getGradientStyle(contact.importance), boxShadow: '0 2px 8px rgba(221, 87, 28, 0.3)'}}>
           {contact.relationship_type}
         </span>
       </div>
 
-      {/* Drift Warning */}
-      {drift > 30 && (
-        <div className="mt-2 text-center">
-          <span className="text-xs text-orange-600 font-medium">
-            {drift > 90 ? '🚨 ' : drift > 60 ? '⚠️ ' : ''}
-            {drift} days
-          </span>
-        </div>
-      )}
+      {/* Stats Row */}
+      <div className="flex justify-center gap-3 mt-3">
+        {/* Drift Warning */}
+        {drift > 30 && (
+          <div className="flex items-center gap-1">
+            <span className="text-base">{drift > 90 ? '🚨' : drift > 60 ? '⚠️' : '⏰'}</span>
+            <span className="text-xs font-semibold text-orange-600">{drift}d</span>
+          </div>
+        )}
 
-      {/* Open Threads Indicator */}
-      {contact.open_threads && contact.open_threads.length > 0 && (
-        <div className="mt-2 text-center">
-          <span className="text-xs text-blue-600 font-medium">
-            {contact.open_threads.length} thread{contact.open_threads.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-      )}
+        {/* Open Threads Indicator */}
+        {contact.open_threads && contact.open_threads.length > 0 && (
+          <div className="flex items-center gap-1">
+            <span className="text-base">💭</span>
+            <span className="text-xs font-semibold text-blue-600">{contact.open_threads.length}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

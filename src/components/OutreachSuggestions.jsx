@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { ContactsContext } from '../context/ContactsContext';
 import { generateOutreachSuggestions } from '../utils/claude';
+import { formatRolodexName } from '../utils/nameFormatter';
 
 // Helper function to calculate days since last interaction
 const calculateDrift = (lastInteractionDate) => {
@@ -118,7 +119,7 @@ export default function OutreachSuggestions() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 py-8 px-4">
+    <div className="min-h-screen py-8 px-4" style={{background: 'linear-gradient(to bottom right, #D6CFC7, #F5F1ED)'}}>
       <div className="max-w-3xl mx-auto">
         {/* Back Button */}
         <button
@@ -134,7 +135,7 @@ export default function OutreachSuggestions() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Reach Out to {selectedContact.name.split(' ')[0]}
+            Reach Out to {formatRolodexName(selectedContact.name)}
           </h1>
           <p className="text-gray-600">
             {isLoading
@@ -146,7 +147,7 @@ export default function OutreachSuggestions() {
         {/* Loading State */}
         {isLoading && (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-amber-500"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4" style={{borderColor: '#DD571C'}}></div>
           </div>
         )}
 
@@ -162,7 +163,7 @@ export default function OutreachSuggestions() {
         {!isLoading && suggestions.length > 0 && (
           <div className="space-y-6 mb-8">
             {suggestions.map((suggestion, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div key={index} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border border-gray-100" style={{boxShadow: '0 4px 24px rgba(221, 87, 28, 0.08)'}}>
                 {/* Type Badge */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
@@ -194,11 +195,10 @@ export default function OutreachSuggestions() {
                 {/* Copy Button */}
                 <button
                   onClick={() => handleCopyMessage(suggestion.draft_message, index)}
-                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
-                    copiedIndex === index
-                      ? 'bg-green-500 text-white'
-                      : 'bg-amber-500 hover:bg-amber-600 text-white'
+                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 text-white ${
+                    copiedIndex === index ? 'bg-green-500' : ''
                   }`}
+                  style={copiedIndex !== index ? {background: 'linear-gradient(135deg, #DD571C, #C44915)'} : {}}
                 >
                   {copiedIndex === index ? (
                     <span className="flex items-center justify-center">
@@ -226,15 +226,16 @@ export default function OutreachSuggestions() {
           <div className="flex flex-col gap-4">
             <button
               onClick={handleReachedOut}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg"
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105"
+              style={{boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)'}}
             >
               ✓ I Reached Out
             </button>
             <button
               onClick={handleBack}
-              className="w-full py-3 px-6 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+              className="w-full py-3 px-6 text-gray-600 hover:text-gray-800 font-medium transition-all hover:bg-gray-100 rounded-xl"
             >
-              Back to Profile
+              ← Back to Profile
             </button>
           </div>
         )}

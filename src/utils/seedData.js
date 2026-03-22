@@ -31,7 +31,12 @@ export const seedContacts = [
     ],
     tags: ["High school", "Close friend"],
     importance: 5,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(60).split('T')[0], summary: "Dinner in NYC, talked about his climbing competition" },
+      { date: daysAgo(95).split('T')[0], summary: "Called to catch up, he told me about the Goldman offer" },
+      { date: daysAgo(140).split('T')[0], summary: "Met for drinks after work" }
+    ]
   },
 
   // Inner circle - Birthday coming up
@@ -58,7 +63,12 @@ export const seedContacts = [
     ],
     tags: ["College", "Close friend"],
     importance: 5,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(14).split('T')[0], summary: "Coffee catch-up, she's excited about Columbia Law" },
+      { date: daysAgo(25).split('T')[0], summary: "Quick phone call, she got the acceptance letter!" },
+      { date: daysAgo(50).split('T')[0], summary: "Lunch together, discussing her law school applications" }
+    ]
   },
 
   // Inner circle - Recent contact
@@ -84,7 +94,13 @@ export const seedContacts = [
     ],
     tags: ["Gym", "Close friend"],
     importance: 5,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(5).split('T')[0], summary: "Basketball at the park, planning to cook dinner next week" },
+      { date: daysAgo(12).split('T')[0], summary: "Workout session at the gym, he showed me his new training routine" },
+      { date: daysAgo(20).split('T')[0], summary: "Grabbed smoothies after workout" },
+      { date: daysAgo(1).split('T')[0], summary: "Quick text check-in about weekend plans" }
+    ]
   },
 
   // Inner circle - Family
@@ -111,7 +127,13 @@ export const seedContacts = [
     ],
     tags: ["Family", "Sister"],
     importance: 5,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(7).split('T')[0], summary: "Sunday family dinner, showed us her latest design project" },
+      { date: daysAgo(14).split('T')[0], summary: "Helped her move furniture in her apartment" },
+      { date: daysAgo(21).split('T')[0], summary: "Coffee date, talked about her Japan trip plans" },
+      { date: daysAgo(2).split('T')[0], summary: "Phone call to check in about her week" }
+    ]
   },
 
   // Middle ring - Colleague, drifting
@@ -137,7 +159,11 @@ export const seedContacts = [
     ],
     tags: ["Work", "Colleague"],
     importance: 3,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(75).split('T')[0], summary: "Grabbed coffee after work, discussed new project" },
+      { date: daysAgo(110).split('T')[0], summary: "Team lunch, talked about gaming" }
+    ]
   },
 
   // Middle ring - College friend
@@ -165,7 +191,11 @@ export const seedContacts = [
     ],
     tags: ["College", "Friend"],
     importance: 4,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(45).split('T')[0], summary: "Video call, she's stressed about exams but doing well" },
+      { date: daysAgo(70).split('T')[0], summary: "Dinner together when she was home for break" }
+    ]
   },
 
   // Middle ring - Friend from home
@@ -193,7 +223,12 @@ export const seedContacts = [
     ],
     tags: ["Neighborhood", "Friend", "Music"],
     importance: 3,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(30).split('T')[0], summary: "Went to his band's show, they were great" },
+      { date: daysAgo(65).split('T')[0], summary: "Coffee chat about his EP recording plans" },
+      { date: daysAgo(3).split('T')[0], summary: "Texted to congratulate on engagement" }
+    ]
   },
 
   // Outer ring - Acquaintance
@@ -214,7 +249,10 @@ export const seedContacts = [
     life_updates: [],
     tags: ["Acquaintance"],
     importance: 2,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(90).split('T')[0], summary: "Met at party, exchanged numbers" }
+    ]
   },
 
   // Outer ring - Mentor, infrequent but valuable
@@ -240,7 +278,10 @@ export const seedContacts = [
     ],
     tags: ["Mentor", "University"],
     importance: 4,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(120).split('T')[0], summary: "Coffee meeting to discuss career advice" }
+    ]
   },
 
   // Middle ring - Birthday in past (for testing)
@@ -266,7 +307,11 @@ export const seedContacts = [
     ],
     tags: ["Dance", "Friend"],
     importance: 3,
-    created_at: Date.now()
+    created_at: Date.now(),
+    interactions: [
+      { date: daysAgo(20).split('T')[0], summary: "Went to dance class together" },
+      { date: daysAgo(40).split('T')[0], summary: "Brunch to celebrate her promotion" }
+    ]
   }
 ];
 
