@@ -74,8 +74,8 @@ export default function Dashboard() {
           transition={{ duration: 0.4 }}
           className="text-center mb-4"
         >
-          <h1 className="text-3xl font-bold text-warm-900 mb-1">Your People</h1>
-          <p className="text-warm-500 text-sm">The closer they are, the more they matter</p>
+          <h1 className="text-3xl font-bold text-warm-900 mb-1">Stay Connected</h1>
+          <p className="text-warm-500 text-sm">The people who matter most</p>
         </motion.div>
 
         <motion.div
