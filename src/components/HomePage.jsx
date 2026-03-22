@@ -12,13 +12,7 @@ export default function HomePage() {
   }).length;
 
   return (
-    <div className="min-h-screen bg-warm-50 relative overflow-hidden">
-      {/* Ambient background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-48 -right-48 w-[500px] h-[500px] rounded-full bg-brand/8 blur-3xl animate-blob" />
-        <div className="absolute -bottom-48 -left-48 w-[500px] h-[500px] rounded-full bg-brand/5 blur-3xl animate-blob delay-2000" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-warm-300/20 blur-3xl animate-blob delay-4000" />
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
 
       {/* ===== HERO SECTION ===== */}
       <section className="relative z-10 flex flex-col items-center justify-center min-h-[90vh] px-6 pt-20">

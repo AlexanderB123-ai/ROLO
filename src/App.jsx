@@ -9,6 +9,7 @@ import VoiceInput from './components/VoiceInput';
 import ContactProfile from './components/ContactProfile';
 import OutreachSuggestions from './components/OutreachSuggestions';
 import Suggestions from './components/Suggestions';
+import { FlickeringGrid } from './components/ui/FlickeringGrid';
 
 const pageTransition = {
   initial: { opacity: 0, y: 8 },
@@ -32,20 +33,32 @@ function AppContent() {
   const ViewComponent = views[currentView] || HomePage;
 
   return (
-    <div className="min-h-screen bg-warm-50 font-sans">
+    <div className="min-h-screen font-sans relative">
+      {/* Global flickering grid background */}
+      <div className="fixed inset-0 z-0 w-screen h-screen">
+        <FlickeringGrid
+          squareSize={4}
+          gridGap={6}
+          color="#DD571C"
+          maxOpacity={0.3}
+          flickerChance={0.1}
+        />
+      </div>
       {showNavigation && <Navigation />}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentView}
-          variants={pageTransition}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <ViewComponent />
-        </motion.div>
-      </AnimatePresence>
+      <div className="relative z-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            variants={pageTransition}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <ViewComponent />
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

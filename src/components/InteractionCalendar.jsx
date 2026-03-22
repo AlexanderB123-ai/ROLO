@@ -149,7 +149,7 @@ export default function InteractionCalendar() {
     : [];
 
   return (
-    <div className="min-h-screen bg-warm-50 pt-24 pb-12 px-4">
+    <div className="min-h-screen pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div

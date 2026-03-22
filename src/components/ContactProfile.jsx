@@ -20,7 +20,7 @@ export default function ContactProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-warm-50 py-8 px-4">
+    <div className="min-h-screen py-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Back button */}
         <button

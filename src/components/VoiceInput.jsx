@@ -98,7 +98,7 @@ export default function VoiceInput() {
   };
 
   return (
-    <div className="min-h-screen bg-warm-50 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
       {/* Ambient background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-48 -right-48 w-[500px] h-[500px] rounded-full bg-brand/8 blur-3xl animate-blob" />

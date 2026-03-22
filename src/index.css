@@ -27,6 +27,7 @@
   body {
     background: var(--color-warm-50);
     color: var(--color-warm-800);
+    min-height: 100vh;
   }
 
   ::selection {
