@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ContactsContext } from '../context/ContactsContext';
 import ContactCard from './ContactCard';
 import { formatRolodexName } from '../utils/nameFormatter';
-import { calculateDrift, getDriftOpacity, daysUntilBirthday } from '../utils/drift';
+import { calculateDrift, getDriftOpacity, daysUntilBirthday, getRelationshipColor } from '../utils/drift';
 import { Mic, AlertCircle, Cake, Users, Heart, UserCheck, UserMinus } from 'lucide-react';
 
 const stagger = {
@@ -104,6 +104,29 @@ export default function Dashboard() {
           ))}
         </motion.div>
 
+        {/* Color legend */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+          className="flex flex-wrap gap-4 justify-center mb-8"
+        >
+          {[
+            { type: 'friend', label: 'Friends' },
+            { type: 'family', label: 'Family' },
+            { type: 'colleague', label: 'Colleagues' },
+            { type: 'mentor', label: 'Mentors' },
+          ].map(item => {
+            const color = getRelationshipColor(item.type);
+            return (
+              <div key={item.type} className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full" style={{ background: color.hex }} />
+                <span className="text-xs text-warm-500 font-medium">{item.label}</span>
+              </div>
+            );
+          })}
+        </motion.div>
+
         {/* Upcoming birthdays */}
         {upcomingBirthdays.length > 0 && (
           <motion.div
@@ -120,13 +143,17 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {upcomingBirthdays.slice(0, 3).map(contact => {
                   const days = daysUntilBirthday(contact.birthday);
+                  const relColor = getRelationshipColor(contact.relationship_type);
                   return (
                     <div
                       key={contact.id}
                       onClick={() => handleContactClick(contact)}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-warm-50 cursor-pointer hover:bg-brand-light transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-xl bg-warm-50 cursor-pointer hover:bg-warm-100 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm"
+                        style={{ background: relColor.hex }}
+                      >
                         {contact.name.charAt(0)}
                       </div>
                       <div>

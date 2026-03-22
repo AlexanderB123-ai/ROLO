@@ -35,8 +35,8 @@ export default function HomePage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-warm-900 mb-6 text-balance leading-[0.95]"
           >
-            Never lose touch
-            <span className="block gradient-text">with anyone.</span>
+            Stay connected
+            <span className="block gradient-text">with everyone.</span>
           </motion.h1>
 
           {/* Sub-headline */}
@@ -54,7 +54,7 @@ export default function HomePage() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-xl md:text-2xl text-warm-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium"
           >
-            Rolo uses AI to make you <span className="text-brand font-bold">call them</span>.
+            Rolo uses AI to help you <span className="text-brand font-bold">stay connected</span>.
           </motion.p>
 
           {/* CTA buttons */}
@@ -245,7 +245,7 @@ export default function HomePage() {
                 Your people are waiting to hear from you.
               </h2>
               <p className="text-warm-400 text-lg mb-8 max-w-xl mx-auto">
-                Stop letting friendships fade. Start using Rolo today.
+                Stop letting friendships fade. Stay connected with Rolo.
               </p>
               <button
                 onClick={() => setCurrentView('dashboard')}
@@ -262,7 +262,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="relative z-10 py-8 px-6 text-center">
         <p className="text-warm-400 text-sm">
-          Built with care. Your data stays on your device.
+          Stay connected. Your data stays on your device.
         </p>
       </footer>
     </div>

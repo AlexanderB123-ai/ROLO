@@ -58,7 +58,10 @@ export default function ContactCard({ contact, onClick, drift, compact = false }
 
         {/* Relationship type */}
         <div className="text-center mb-3">
-          <span className="text-xs text-warm-400 font-medium capitalize">
+          <span
+            className="text-xs font-medium capitalize px-2 py-0.5 rounded-md"
+            style={{ color: relColor.hex, background: `${relColor.hex}15` }}
+          >
             {contact.relationship_type}
           </span>
         </div>
